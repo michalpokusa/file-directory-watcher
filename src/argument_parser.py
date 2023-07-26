@@ -6,6 +6,8 @@ from argparse import (
     ONE_OR_MORE
 )
 
+from src.utils import verbose_time_to_seconds
+
 
 class FDWArgumentParser(ArgumentParser):
     def error(self, message):
@@ -27,9 +29,30 @@ parser.add_argument(
     nargs=ONE_OR_MORE,
 )
 
+# Optional arguments
+parser.add_argument(
+    "-i", "--interval",
+    metavar="seconds",
+    dest="interval",
+    help="interval between running the watcher in seconds (default: 1s)",
+    default='1s',
+    type=verbose_time_to_seconds,
+)
+parser.add_argument(
+    "-d", "--delay",
+    metavar="seconds",
+    dest="delay",
+    help="delay between files in seconds (default: 0s)",
+    default='0s',
+    type=verbose_time_to_seconds,
+)
+
 
 class FDWArgs(Namespace):
     patterns: "list[str]"
+
+    interval: float
+    delay: float
 
 
 cli_args: FDWArgs = parser.parse_args()
