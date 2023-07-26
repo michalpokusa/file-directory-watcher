@@ -7,6 +7,7 @@ from argparse import (
     ONE_OR_MORE
 )
 
+from src import VERSION
 from src.utils import verbose_time_to_seconds, ComparisonMethod
 
 
@@ -119,6 +120,12 @@ comparison_method_group.add_argument(
     help="use MD5 hash to compare files",
     action="store_const",
     const=ComparisonMethod.MD5,
+)
+
+parser.add_argument(
+    "--version",
+    action="version",
+    version=VERSION,
 )
 
 
