@@ -65,21 +65,15 @@ def verbose_time_to_seconds(time: str) -> float:
 
     return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
 
-def _expand_variables(command: str, file_path: str) -> str:
+def expand_variables(command: str, file_path: str) -> str:
     return command\
     .replace(r"%file_name", path.basename(file_path))\
     .replace(r"%relative_file_path", file_path)\
     .replace(r"%absolute_file_path", path.abspath(file_path))
 
-def _run_command(command: str, background=False):
-    if background:
-        Process(target=system, args=(command,)).start()
-    else:
-        system(command)
-
-def run_commands_for_file(*commands: "str", file_path: str, background=False):
+def run_commands(*commands: "str", background=False):
     for command in commands:
-        _run_command(
-            command=_expand_variables(command, file_path),
-            background=background
-        )
+        if background:
+            Process(target=system, args=(command,)).start()
+        else:
+            system(command)

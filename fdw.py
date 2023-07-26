@@ -5,7 +5,8 @@ from src.utils import (
     files_from_patterns,
     changes_in_file_lists,
     file_state,
-    run_commands_for_file,
+    expand_variables,
+    run_commands,
 )
 
 
@@ -15,6 +16,9 @@ class FDW:
 
     def __init__(self, args: FDWArgs):
         self.args = args
+        self.args.commands_on_add += self.args.commands_on_change
+        self.args.commands_on_modify += self.args.commands_on_change
+        self.args.commands_on_remove += self.args.commands_on_change
 
         self.states = {}
 
@@ -30,33 +34,33 @@ class FDW:
     def _handle_added_file(self, file_path: str):
         self.states.setdefault(file_path, file_state(file_path))
 
-        run_commands_for_file(
-            *self.args.commands_on_add,
-            *self.args.commands_on_change,
-            file_path=file_path,
-            background=self.args.background,
-        )
+        expanded_commands = [
+            expand_variables(command, file_path)
+            for command in self.args.commands_on_add
+        ]
+
+        run_commands(*expanded_commands, background=self.args.background)
 
     def _handle_modified_file(self, file_path: str):
         self.states[file_path] = self._cached_file_state
         self._cached_file_state = None
 
-        run_commands_for_file(
-            *self.args.commands_on_modify,
-            *self.args.commands_on_change,
-            file_path=file_path,
-            background=self.args.background,
-        )
+        expanded_commands = [
+            expand_variables(command, file_path)
+            for command in self.args.commands_on_modify
+        ]
+
+        run_commands(*expanded_commands, background=self.args.background)
 
     def _handle_removed_file(self, file_path: str):
         self.states.pop(file_path)
 
-        run_commands_for_file(
-            *self.args.commands_on_remove,
-            *self.args.commands_on_change,
-            file_path=file_path,
-            background=self.args.background,
-        )
+        expanded_commands = [
+            expand_variables(command, file_path)
+            for command in self.args.commands_on_remove
+        ]
+
+        run_commands(*expanded_commands, background=self.args.background)
 
     def watch_for_changes(self):
         while True:
