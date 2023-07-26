@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug: fdw.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/fdw.py",
+            "args": [
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
