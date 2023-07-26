@@ -47,13 +47,13 @@ def file_state(
     file_path: str, compare_method = CompareMethod.MTIME
 ):
     try:
-        if compare_method == CompareMethod.MTIME:
+        if compare_method == CompareMethod.MTIME.value:
             return stat(file_path).st_mtime
 
-        if compare_method == CompareMethod.SIZE:
+        if compare_method == CompareMethod.SIZE.value:
             return stat(file_path).st_size
 
-        if compare_method == CompareMethod.MD5:
+        if compare_method == CompareMethod.MD5.value:
             with open(file_path, 'rb') as f:
                 file_content = f.read()
             return md5(file_content).hexdigest()

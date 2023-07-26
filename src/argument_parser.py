@@ -103,7 +103,7 @@ parser.add_argument(
     dest="compare_method",
     help="method to compare files (default: mtime)",
     choices=CompareMethod.values(),
-    default=CompareMethod.MTIME,
+    default=CompareMethod.MTIME.value,
 )
 
 parser.add_argument(
