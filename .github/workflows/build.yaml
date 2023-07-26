@@ -34,7 +34,7 @@ jobs:
       run: |
         bash tools/build.bash
 
-    - name: Archive app
+    - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: fdw

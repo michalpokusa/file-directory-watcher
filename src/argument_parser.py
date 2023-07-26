@@ -8,7 +8,7 @@ from argparse import (
 )
 
 from src import VERSION
-from src.utils import verbose_time_to_seconds, ComparisonMethod
+from src.utils import verbose_time_to_seconds, CompareMethod
 
 
 class FDWArgumentParser(ArgumentParser):
