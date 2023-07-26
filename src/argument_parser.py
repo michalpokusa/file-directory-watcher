@@ -7,7 +7,7 @@ from argparse import (
     ONE_OR_MORE
 )
 
-from src.utils import verbose_time_to_seconds
+from src.utils import verbose_time_to_seconds, ComparisonMethod
 
 
 class FDWArgumentParser(ArgumentParser):
@@ -97,6 +97,31 @@ parser.add_argument(
     default=True,
 )
 
+comparison_method_group = parser.add_mutually_exclusive_group()
+comparison_method_group.add_argument(
+    "--mtime",
+    help="use modification time to compare files (default)",
+    dest="comparison_method",
+    action="store_const",
+    const=ComparisonMethod.MTIME,
+    default=ComparisonMethod.MTIME,
+)
+comparison_method_group.add_argument(
+    "--size",
+    dest="comparison_method",
+    help="use file size to compare files",
+    action="store_const",
+    const=ComparisonMethod.SIZE,
+)
+comparison_method_group.add_argument(
+    "--md5",
+    dest="comparison_method",
+    help="use MD5 hash to compare files",
+    action="store_const",
+    const=ComparisonMethod.MD5,
+)
+
+
 class FDWArgs(Namespace):
     patterns: "list[str]"
 
@@ -110,6 +135,7 @@ class FDWArgs(Namespace):
     commands_on_remove: "list[str]"
 
     color: bool
+    comparison_method: str
 
 
 cli_args: FDWArgs = parser.parse_args()

@@ -37,6 +37,7 @@ def changes_in_file_lists(
 
 class ComparisonMethod(Enum):
     MTIME = "mtime"
+    SIZE = "size"
     MD5 = "md5"
 
 def file_state(
@@ -45,6 +46,9 @@ def file_state(
     try:
         if comparison_method == ComparisonMethod.MTIME:
             return stat(file_path).st_mtime
+
+        if comparison_method == ComparisonMethod.SIZE:
+            return stat(file_path).st_size
 
         if comparison_method == ComparisonMethod.MD5:
             with open(file_path, 'rb') as f:
