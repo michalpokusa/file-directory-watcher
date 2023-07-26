@@ -9,34 +9,36 @@ class CLI:
     RED = "\x1b[38;5;196m"
     RESET = "\x1b[0m"
 
+    def __init__(self, color: bool):
+        if not color:
+            self.DARK_GRAY = ""
+            self.LIGHT_GRAY = ""
+            self.GREEN = ""
+            self.YELLOW = ""
+            self.RED = ""
+            self.RESET = ""
 
-    @staticmethod
-    def _print_prefix():
-        print(f"{CLI.LIGHT_GRAY}[{CLI.DARK_GRAY}{formatted_current_time()}{CLI.LIGHT_GRAY}]{CLI.RESET}", end=" ",)
+    def _print_prefix(self):
+        print(f"{self.LIGHT_GRAY}[{self.DARK_GRAY}{formatted_current_time()}{self.LIGHT_GRAY}]{self.RESET}", end=" ",)
 
-    @staticmethod
-    def watching_files(files: "set[str]", _max = 10):
-        CLI._print_prefix()
+    def watching_files(self, files: "set[str]", _max = 10):
+        self._print_prefix()
         print(
             f"Watching files:\n{', '.join(sorted(files)[:_max])}",
             f"{f'and {len(files) - _max} more...' if len(files) > _max else ''}"
         )
 
-    @staticmethod
-    def added_file(file_path: str):
-        CLI._print_prefix()
-        print(f"File {CLI.GREEN}{file_path}{CLI.RESET} was added")
+    def added_file(self, file_path: str):
+        self._print_prefix()
+        print(f"File {self.GREEN}{file_path}{self.RESET} was added")
 
-    @staticmethod
-    def modified_file(file_path: str):
-        CLI._print_prefix()
-        print(f"File {CLI.YELLOW}{file_path}{CLI.RESET} was modified")
+    def modified_file(self, file_path: str):
+        self._print_prefix()
+        print(f"File {self.YELLOW}{file_path}{self.RESET} was modified")
 
-    @staticmethod
-    def removed_file(file_path: str):
-        CLI._print_prefix()
-        print(f"File {CLI.RED}{file_path}{CLI.RESET} was removed")
+    def removed_file(self, file_path: str):
+        self._print_prefix()
+        print(f"File {self.RED}{file_path}{self.RESET} was removed")
 
-    @staticmethod
-    def running_commands(commands: "list[str]"):
+    def running_commands(self, commands: "list[str]"):
         commands and print('\n'.join(commands))

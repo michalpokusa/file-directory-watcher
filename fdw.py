@@ -22,6 +22,7 @@ class FDW:
         self.args.commands_on_modify += self.args.commands_on_change
         self.args.commands_on_remove += self.args.commands_on_change
 
+        self.cli = CLI(self.args.color)
         self.states = {}
 
     def compute_starting_states(self):
@@ -41,8 +42,8 @@ class FDW:
             for command in self.args.commands_on_add
         ]
 
-        CLI.added_file(file_path)
-        CLI.running_commands(expanded_commands)
+        self.cli.added_file(file_path)
+        self.cli.running_commands(expanded_commands)
         run_commands(*expanded_commands, background=self.args.background)
 
     def _handle_modified_file(self, file_path: str):
@@ -54,8 +55,8 @@ class FDW:
             for command in self.args.commands_on_modify
         ]
 
-        CLI.modified_file(file_path)
-        CLI.running_commands(expanded_commands)
+        self.cli.modified_file(file_path)
+        self.cli.running_commands(expanded_commands)
         run_commands(*expanded_commands, background=self.args.background)
 
     def _handle_removed_file(self, file_path: str):
@@ -66,12 +67,12 @@ class FDW:
             for command in self.args.commands_on_remove
         ]
 
-        CLI.removed_file(file_path)
-        CLI.running_commands(expanded_commands)
+        self.cli.removed_file(file_path)
+        self.cli.running_commands(expanded_commands)
         run_commands(*expanded_commands, background=self.args.background)
 
     def watch_for_changes(self):
-        CLI.watching_files(self.states.keys())
+        self.cli.watching_files(self.states.keys())
         while True:
 
             previous_files = set(self.states.keys())

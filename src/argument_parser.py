@@ -88,6 +88,15 @@ parser.add_argument(
     default=[],
 )
 
+parser.add_argument(
+    "--no-color",
+    dest="color",
+    help="do not use colors in output",
+    action="store_const",
+    const=False,
+    default=True,
+)
+
 class FDWArgs(Namespace):
     patterns: "list[str]"
 
@@ -99,6 +108,8 @@ class FDWArgs(Namespace):
     commands_on_add: "list[str]"
     commands_on_modify: "list[str]"
     commands_on_remove: "list[str]"
+
+    color: bool
 
 
 cli_args: FDWArgs = parser.parse_args()
