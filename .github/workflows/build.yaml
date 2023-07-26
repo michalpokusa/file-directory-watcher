@@ -32,6 +32,9 @@ jobs:
 
     - name: Build app
       run: |
+        echo $(pwd)
+        echo "VERSION = \"${{ env.VERSION }}\"" > src/version.py
+        cat src/version.py
         bash tools/build.bash
 
     - name: Upload artifact
