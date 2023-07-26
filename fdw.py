@@ -1,3 +1,4 @@
+from sys import exit as sys_exit
 from time import sleep
 
 from src.argument_parser import FDWArgs, cli_args
@@ -106,4 +107,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        pass
+        sys_exit(0)
