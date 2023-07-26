@@ -32,4 +32,4 @@ class FDWArgs(Namespace):
     patterns: "list[str]"
 
 
-args: FDWArgs = parser.parse_args()
+cli_args: FDWArgs = parser.parse_args()
