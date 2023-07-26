@@ -35,22 +35,25 @@ def changes_in_file_lists(
         yield file, False, False, True
 
 
-class ComparisonMethod(Enum):
+class CompareMethod(Enum):
     MTIME = "mtime"
     SIZE = "size"
     MD5 = "md5"
 
+    def values() -> "list[str]":
+        return [method.value for method in CompareMethod]
+
 def file_state(
-    file_path: str, comparison_method = ComparisonMethod.MTIME
+    file_path: str, comparison_method = CompareMethod.MTIME
 ):
     try:
-        if comparison_method == ComparisonMethod.MTIME:
+        if comparison_method == CompareMethod.MTIME:
             return stat(file_path).st_mtime
 
-        if comparison_method == ComparisonMethod.SIZE:
+        if comparison_method == CompareMethod.SIZE:
             return stat(file_path).st_size
 
-        if comparison_method == ComparisonMethod.MD5:
+        if comparison_method == CompareMethod.MD5:
             with open(file_path, 'rb') as f:
                 file_content = f.read()
             return md5(file_content).hexdigest()

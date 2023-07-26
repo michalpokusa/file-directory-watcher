@@ -98,28 +98,12 @@ parser.add_argument(
     default=True,
 )
 
-comparison_method_group = parser.add_mutually_exclusive_group()
-comparison_method_group.add_argument(
-    "--mtime",
-    help="use modification time to compare files (default)",
-    dest="comparison_method",
-    action="store_const",
-    const=ComparisonMethod.MTIME,
-    default=ComparisonMethod.MTIME,
-)
-comparison_method_group.add_argument(
-    "--size",
-    dest="comparison_method",
-    help="use file size to compare files",
-    action="store_const",
-    const=ComparisonMethod.SIZE,
-)
-comparison_method_group.add_argument(
-    "--md5",
-    dest="comparison_method",
-    help="use MD5 hash to compare files",
-    action="store_const",
-    const=ComparisonMethod.MD5,
+parser.add_argument(
+    "--compare-method",
+    dest="compare_method",
+    help="method to compare files (default: mtime)",
+    choices=CompareMethod.values(),
+    default=CompareMethod.MTIME,
 )
 
 parser.add_argument(
@@ -142,7 +126,7 @@ class FDWArgs(Namespace):
     commands_on_remove: "list[str]"
 
     color: bool
-    comparison_method: str
+    compare_method: CompareMethod
 
 
 cli_args: FDWArgs = parser.parse_args()
