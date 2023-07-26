@@ -1,6 +1,7 @@
 from time import sleep
 
 from src.argument_parser import FDWArgs, cli_args
+from src.cli import CLI
 from src.utils import (
     files_from_patterns,
     changes_in_file_lists,
@@ -39,6 +40,8 @@ class FDW:
             for command in self.args.commands_on_add
         ]
 
+        CLI.added_file(file_path)
+        CLI.running_commands(expanded_commands)
         run_commands(*expanded_commands, background=self.args.background)
 
     def _handle_modified_file(self, file_path: str):
@@ -50,6 +53,8 @@ class FDW:
             for command in self.args.commands_on_modify
         ]
 
+        CLI.modified_file(file_path)
+        CLI.running_commands(expanded_commands)
         run_commands(*expanded_commands, background=self.args.background)
 
     def _handle_removed_file(self, file_path: str):
@@ -60,9 +65,12 @@ class FDW:
             for command in self.args.commands_on_remove
         ]
 
+        CLI.removed_file(file_path)
+        CLI.running_commands(expanded_commands)
         run_commands(*expanded_commands, background=self.args.background)
 
     def watch_for_changes(self):
+        CLI.watching_files(self.states.keys())
         while True:
 
             previous_files = set(self.states.keys())

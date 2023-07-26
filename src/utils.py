@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from hashlib import md5
 from multiprocessing import Process
@@ -5,6 +6,9 @@ from os import stat, system, path
 from pathlib import Path
 from re import match as re_match
 
+
+def formatted_current_time(format: str = "%Y-%m-%d %H:%M:%S"):
+    return datetime.now().strftime(format)
 
 def files_from_patterns(patterns: "list[str]") -> "list[str]":
     return {
