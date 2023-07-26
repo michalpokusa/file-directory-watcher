@@ -5,6 +5,7 @@ from src.utils import (
     files_from_patterns,
     changes_in_file_lists,
     file_state,
+    run_commands_for_file,
 )
 
 
@@ -29,12 +30,27 @@ class FDW:
     def _handle_added_file(self, file_path: str):
         self.states.setdefault(file_path, file_state(file_path))
 
+        run_commands_for_file(
+            file_path=file_path,
+            background=self.args.background,
+        )
+
     def _handle_modified_file(self, file_path: str):
         self.states[file_path] = self._cached_file_state
         self._cached_file_state = None
 
+        run_commands_for_file(
+            file_path=file_path,
+            background=self.args.background,
+        )
+
     def _handle_removed_file(self, file_path: str):
         self.states.pop(file_path)
+
+        run_commands_for_file(
+            file_path=file_path,
+            background=self.args.background,
+        )
 
     def watch_for_changes(self):
         while True:

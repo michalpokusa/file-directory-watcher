@@ -1,6 +1,7 @@
 from enum import Enum
 from hashlib import md5
-from os import stat
+from multiprocessing import Process
+from os import stat, system, path
 from pathlib import Path
 from re import match as re_match
 
@@ -10,7 +11,7 @@ def files_from_patterns(patterns: "list[str]") -> "list[str]":
         str(filename)
         for pattern in patterns
         for filename in Path("./").glob(pattern)
-        if Path(filename).is_file()
+        if path.isfile(filename)
     }
 
 def changes_in_file_lists(
@@ -63,3 +64,22 @@ def verbose_time_to_seconds(time: str) -> float:
     seconds = float(groups["seconds"] or 0)
 
     return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
+
+def _expand_variables(command: str, file_path: str) -> str:
+    return command\
+    .replace(r"%file_name", path.basename(file_path))\
+    .replace(r"%relative_file_path", file_path)\
+    .replace(r"%absolute_file_path", path.abspath(file_path))
+
+def _run_command(command: str, background=False):
+    if background:
+        Process(target=system, args=(command,)).start()
+    else:
+        system(command)
+
+def run_commands_for_file(*commands: "str", file_path: str, background=False):
+    for command in commands:
+        _run_command(
+            command=_expand_variables(command, file_path),
+            background=background
+        )

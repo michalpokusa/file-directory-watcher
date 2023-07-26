@@ -46,6 +46,12 @@ parser.add_argument(
     default='0s',
     type=verbose_time_to_seconds,
 )
+parser.add_argument(
+    "-b", "--background",
+    dest="background",
+    help="run commands in background non-blocking processes",
+    action="store_true",
+)
 
 
 class FDWArgs(Namespace):
@@ -53,6 +59,7 @@ class FDWArgs(Namespace):
 
     interval: float
     delay: float
+    background: bool
 
 
 cli_args: FDWArgs = parser.parse_args()
