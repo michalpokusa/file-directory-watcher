@@ -29,15 +29,15 @@ class FDW:
         files = files_from_patterns(self.args.patterns)
         for relative_file_path in files:
             self.states.setdefault(
-                relative_file_path, file_state(relative_file_path, self.args.comparison_method)
+                relative_file_path, file_state(relative_file_path, self.args.compare_method)
             )
 
     def _compare_file_states(self, relative_file_path: str) -> bool:
-        self._cached_file_state = file_state(relative_file_path, self.args.comparison_method)
+        self._cached_file_state = file_state(relative_file_path, self.args.compare_method)
         return self.states.get(relative_file_path) == self._cached_file_state
 
     def _handle_added_file(self, file_path: str):
-        self.states.setdefault(file_path, file_state(file_path, self.args.comparison_method))
+        self.states.setdefault(file_path, file_state(file_path, self.args.compare_method))
 
         expanded_commands = [
             expand_variables(command, file_path)
