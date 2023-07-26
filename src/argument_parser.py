@@ -3,6 +3,7 @@ from sys import exit
 from argparse import (
     ArgumentParser,
     Namespace,
+    RawTextHelpFormatter,
     ONE_OR_MORE
 )
 
@@ -19,6 +20,7 @@ class FDWArgumentParser(ArgumentParser):
 parser = FDWArgumentParser(
     prog='fdw',
     description='...',
+    formatter_class=RawTextHelpFormatter,
 )
 
 # Positional arguments
@@ -53,6 +55,38 @@ parser.add_argument(
     action="store_true",
 )
 
+parser.add_argument(
+    "--oc", "--on-change",
+    metavar="command",
+    dest="commands_on_change",
+    help="commands to run when a file is added, modified or removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+parser.add_argument(
+    "--oa", "--on-add",
+    metavar="command",
+    dest="commands_on_add",
+    help="commands to run when a file is added\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+parser.add_argument(
+    "--om", "--on-modify",
+    metavar="command",
+    dest="commands_on_modify",
+    help="commands to run when a file is modified\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+parser.add_argument(
+    "--or", "--on-remove",
+    metavar="command",
+    dest="commands_on_remove",
+    help="commands to run when a file is removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
 
 class FDWArgs(Namespace):
     patterns: "list[str]"
@@ -60,6 +94,11 @@ class FDWArgs(Namespace):
     interval: float
     delay: float
     background: bool
+
+    commands_on_change: "list[str]"
+    commands_on_add: "list[str]"
+    commands_on_modify: "list[str]"
+    commands_on_remove: "list[str]"
 
 
 cli_args: FDWArgs = parser.parse_args()

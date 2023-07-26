@@ -31,6 +31,8 @@ class FDW:
         self.states.setdefault(file_path, file_state(file_path))
 
         run_commands_for_file(
+            *self.args.commands_on_add,
+            *self.args.commands_on_change,
             file_path=file_path,
             background=self.args.background,
         )
@@ -40,6 +42,8 @@ class FDW:
         self._cached_file_state = None
 
         run_commands_for_file(
+            *self.args.commands_on_modify,
+            *self.args.commands_on_change,
             file_path=file_path,
             background=self.args.background,
         )
@@ -48,6 +52,8 @@ class FDW:
         self.states.pop(file_path)
 
         run_commands_for_file(
+            *self.args.commands_on_remove,
+            *self.args.commands_on_change,
             file_path=file_path,
             background=self.args.background,
         )
