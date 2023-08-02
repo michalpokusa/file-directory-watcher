@@ -8,7 +8,7 @@ from argparse import (
 )
 
 from src import VERSION
-from src.utils import verbose_time_to_seconds, CompareMethod
+from src.utils import verbose_time_to_seconds, CompareMethod, OperationType
 
 
 class FDWArgumentParser(ArgumentParser):
@@ -130,6 +130,27 @@ parser.add_argument(
     default=True,
 )
 
+watched_operations_group = parser.add_mutually_exclusive_group()
+
+watched_operations_group.add_argument(
+    "--only",
+    metavar="operation",
+    dest="_only_operations",
+    help=f"Operations to watch for [{', '.join(OperationType.all())}]\n ",
+    nargs=ONE_OR_MORE,
+    choices=OperationType.all(),
+    default=[],
+)
+watched_operations_group.add_argument(
+    "--ignore",
+    metavar="operation",
+    dest="_ignored_operations",
+    help=f"Operations to ignore [{', '.join(OperationType.all())}]\n ",
+    nargs=ONE_OR_MORE,
+    choices=OperationType.all(),
+    default=[],
+)
+
 parser.add_argument(
     "--fcm",
     "--file-compare-method",
@@ -170,6 +191,10 @@ class FDWArgs(Namespace):
     commands_on_directory_modify: "list[str]"
     commands_on_directory_remove: "list[str]"
 
+    _only_operations: "list[str]"
+    _ignored_operations: "list[str]"
+    operations: "set[str]"
+
     color: bool
     file_compare_method: CompareMethod
     directory_compare_method: CompareMethod
@@ -177,9 +202,34 @@ class FDWArgs(Namespace):
 
 cli_args: FDWArgs = parser.parse_args()
 
+# Adding commands_on_..._change to other commands
 cli_args.commands_on_file_add.extend(cli_args.commands_on_file_change)
 cli_args.commands_on_file_modify.extend(cli_args.commands_on_file_change)
 cli_args.commands_on_file_remove.extend(cli_args.commands_on_file_change)
 cli_args.commands_on_directory_add.extend(cli_args.commands_on_directory_change)
 cli_args.commands_on_directory_modify.extend(cli_args.commands_on_directory_change)
 cli_args.commands_on_directory_remove.extend(cli_args.commands_on_directory_change)
+
+
+# Determining operations to watch for
+cli_args._only_operations = set(cli_args._only_operations)
+if OperationType.FILE_CHANGED.value in cli_args._only_operations:
+    cli_args._only_operations.update({
+        OperationType.FILE_ADDED.value,
+        OperationType.FILE_REMOVED.value,
+        OperationType.FILE_MODIFIED.value,
+    })
+
+cli_args._ignored_operations = set(cli_args._ignored_operations)
+if OperationType.FILE_CHANGED.value in cli_args._ignored_operations:
+    cli_args._ignored_operations.update({
+        OperationType.FILE_ADDED.value,
+        OperationType.FILE_REMOVED.value,
+        OperationType.FILE_MODIFIED.value,
+    })
+
+cli_args.operations = set(OperationType.all()).intersection(
+    cli_args._only_operations
+).difference(
+    cli_args._ignored_operations
+)

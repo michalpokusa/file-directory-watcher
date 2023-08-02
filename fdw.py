@@ -6,6 +6,7 @@ from src.cli import CLI
 from src.utils import (
     File,
     Directory,
+    OperationType,
     fs_entries_from_patterns,
     changes_in_entries,
     compute_state,
@@ -44,6 +45,12 @@ class FDW:
         )
         return self.states.get(entry) == self._cached_entry_state
 
+    def _should_handle_added(self, entry: "File | Directory") -> bool:
+        if type(entry) == File:
+            return OperationType.FILE_ADDED.value in self.args.operations
+        if type(entry) == Directory:
+            return OperationType.DIRECTORY_ADDED.value in self.args.operations
+
     def _handle_added(self, entry: "File | Directory"):
         self.states.setdefault(
             entry,
@@ -53,30 +60,50 @@ class FDW:
                 self.args.directory_compare_method
             )
         )
+        if not self._should_handle_added(entry):
+            return
 
         commands = type(entry) == File and self.args.commands_on_file_add or self.args.commands_on_directory_add
-        expanded_commands = [expand_variables(command, entry)for command in commands]
+        expanded_commands = [expand_variables(command, entry) for command in commands]
 
         self.cli.added_entry(entry)
         self.cli.running_commands(expanded_commands)
         run_commands(*expanded_commands, background=self.args.background)
 
+    def _should_handle_modified(self, entry: "File | Directory") -> bool:
+        if type(entry) == File:
+            return OperationType.FILE_MODIFIED.value in self.args.operations
+        if type(entry) == Directory:
+            return OperationType.DIRECTORY_MODIFIED.value in self.args.operations
+
     def _handle_modified(self, entry: "File | Directory"):
         self.states[entry] = self._cached_entry_state
         self._cached_entry_state = None
 
+        if not self._should_handle_modified(entry):
+            return
+
         commands = type(entry) == File and self.args.commands_on_file_modify or self.args.commands_on_directory_modify
-        expanded_commands = [expand_variables(command, entry)for command in commands]
+        expanded_commands = [expand_variables(command, entry) for command in commands]
 
         self.cli.modified_entry(entry)
         self.cli.running_commands(expanded_commands)
         run_commands(*expanded_commands, background=self.args.background)
 
+    def _should_handle_removed(self, entry: "File | Directory") -> bool:
+        if type(entry) == File:
+            return OperationType.FILE_REMOVED.value in self.args.operations
+        if type(entry) == Directory:
+            return OperationType.DIRECTORY_REMOVED.value in self.args.operations
+
     def _handle_removed(self, entry: "File | Directory"):
         self.states.pop(entry)
 
+        if not self._should_handle_removed(entry):
+            return
+
         commands = type(entry) == File and self.args.commands_on_file_remove or self.args.commands_on_directory_remove
-        expanded_commands = [expand_variables(command, entry)for command in commands]
+        expanded_commands = [expand_variables(command, entry) for command in commands]
 
         self.cli.removed_entry(entry)
         self.cli.running_commands(expanded_commands)
@@ -89,10 +116,7 @@ class FDW:
             previous_entries = set(self.states.keys())
             current_entries = set(fs_entries_from_patterns(self.args.patterns))
 
-            for (entry, added, present_in_both, removed) in changes_in_entries(
-                previous_entries,
-                current_entries
-            ):
+            for (entry, added, present_in_both, removed) in changes_in_entries(previous_entries, current_entries):
                 self.args.delay and sleep(self.args.delay)
 
                 if added:

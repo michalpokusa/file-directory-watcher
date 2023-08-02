@@ -33,6 +33,22 @@ def fs_entries_from_patterns(patterns: "list[str]") -> "File | Directory":
             elif os_path.isdir(_path):
                 yield Directory(str(_path))
 
+
+class OperationType(Enum):
+    FILE_CHANGED = "file_changed"
+    FILE_ADDED = "file_added"
+    FILE_MODIFIED = "file_modified"
+    FILE_REMOVED = "file_removed"
+    DIRECTORY_CHANGED = "directory_changed"
+    DIRECTORY_ADDED = "directory_added"
+    DIRECTORY_MODIFIED = "directory_modified"
+    DIRECTORY_REMOVED = "directory_removed"
+
+    @staticmethod
+    def all():
+        return tuple(operation_type.value for operation_type in OperationType)
+
+
 def changes_in_entries(
         previous_entries: "set[File | Directory]", current_entries: "set[File | Directory]"
     ) -> "tuple[File | Directory, bool, bool, bool]":
