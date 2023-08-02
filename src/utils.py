@@ -1,8 +1,9 @@
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from hashlib import md5
 from multiprocessing import Process
-from os import stat, system, path
+from os import stat, system, path as os_path
 from pathlib import Path
 from re import match as re_match
 
@@ -10,29 +11,43 @@ from re import match as re_match
 def formatted_current_time(format: str = "%Y-%m-%d %H:%M:%S"):
     return datetime.now().strftime(format)
 
-def files_from_patterns(patterns: "list[str]") -> "list[str]":
-    return {
-        str(filename)
-        for pattern in patterns
-        for filename in Path("./").glob(pattern)
-        if path.isfile(filename)
-    }
+@dataclass
+class _FSEntry:
+    path: str
 
-def changes_in_file_lists(
-        previous_files: "set[str]", current_files: "set[str]"
-    ) -> "tuple[str, bool, bool, bool]":
+    def __hash__(self) -> int:
+        return hash(self.path)
 
-    # Added files
-    for file in current_files.difference(previous_files):
-        yield file, True, False, False
+class File(_FSEntry):
+    pass
 
-    # Present in both lists
-    for file in previous_files.intersection(current_files):
-        yield file, False, True, False
+class Directory(_FSEntry):
+    pass
 
-    # Removed files
-    for file in previous_files.difference(current_files):
-        yield file, False, False, True
+
+def fs_entries_from_patterns(patterns: "list[str]") -> "File | Directory":
+    for pattern in patterns:
+        for _path in Path("./").glob(pattern):
+            if os_path.isfile(_path):
+                yield File(str(_path))
+            elif os_path.isdir(_path):
+                yield Directory(str(_path))
+
+def changes_in_entries(
+        previous_entries: "set[File | Directory]", current_entries: "set[File | Directory]"
+    ) -> "tuple[File | Directory, bool, bool, bool]":
+
+    # Added entries
+    for entry in current_entries.difference(previous_entries):
+        yield entry, True, False, False
+
+    # Present in both sets
+    for entry in previous_entries.intersection(current_entries):
+        yield entry, False, True, False
+
+    # Removed entries
+    for entry in previous_entries.difference(current_entries):
+        yield entry, False, False, True
 
 
 class CompareMethod(Enum):
@@ -40,21 +55,29 @@ class CompareMethod(Enum):
     SIZE = "size"
     MD5 = "md5"
 
-    def values() -> "list[str]":
-        return [method.value for method in CompareMethod]
+    def for_files() -> "list[str]":
+        return (CompareMethod.MTIME.value, CompareMethod.SIZE.value, CompareMethod.MD5.value)
 
-def file_state(
-    file_path: str, compare_method = CompareMethod.MTIME
+    def for_directories() -> "list[str]":
+        return (CompareMethod.MTIME.value,)
+
+
+def compute_state(
+    fs_entry: "File | Directory",
+    file_compare_method = CompareMethod.MTIME,
+    directory_compare_method = CompareMethod.MTIME
 ):
+    compare_method = type(fs_entry) == File and file_compare_method or directory_compare_method
+
     try:
         if compare_method == CompareMethod.MTIME.value:
-            return stat(file_path).st_mtime
+            return stat(fs_entry.path).st_mtime
 
         if compare_method == CompareMethod.SIZE.value:
-            return stat(file_path).st_size
+            return stat(fs_entry.path).st_size
 
         if compare_method == CompareMethod.MD5.value:
-            with open(file_path, 'rb') as f:
+            with open(fs_entry.path, 'rb') as f:
                 file_content = f.read()
             return md5(file_content).hexdigest()
     except FileNotFoundError:
@@ -76,11 +99,11 @@ def verbose_time_to_seconds(time: str) -> float:
 
     return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
 
-def expand_variables(command: str, file_path: str) -> str:
+def expand_variables(command: str, entry: "File | Directory") -> str:
     return command\
-    .replace(r"%file_name", path.basename(file_path))\
-    .replace(r"%relative_file_path", file_path)\
-    .replace(r"%absolute_file_path", path.abspath(file_path))
+    .replace(r"%file_name", os_path.basename(entry.path))\
+    .replace(r"%relative_file_path", entry.path)\
+    .replace(r"%absolute_file_path", os_path.abspath(entry.path))
 
 def run_commands(*commands: "str", background=False):
     for command in commands:

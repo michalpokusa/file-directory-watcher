@@ -99,10 +99,19 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--compare-method",
-    dest="compare_method",
+    "--fcm",
+    "--file-compare-method",
+    dest="file_compare_method",
     help="method to compare files (default: mtime)",
-    choices=CompareMethod.values(),
+    choices=CompareMethod.for_files(),
+    default=CompareMethod.MTIME.value,
+)
+parser.add_argument(
+    "--dcm",
+    "--directory-compare-method",
+    dest="directory_compare_method",
+    help="method to compare directories (default: mtime)",
+    choices=CompareMethod.for_directories(),
     default=CompareMethod.MTIME.value,
 )
 
@@ -126,7 +135,8 @@ class FDWArgs(Namespace):
     commands_on_remove: "list[str]"
 
     color: bool
-    compare_method: CompareMethod
+    file_compare_method: CompareMethod
+    directory_compare_method: CompareMethod
 
 
 cli_args: FDWArgs = parser.parse_args()

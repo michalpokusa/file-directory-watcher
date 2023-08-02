@@ -1,4 +1,4 @@
-from src.utils import formatted_current_time
+from src.utils import formatted_current_time, File
 
 
 class CLI:
@@ -21,24 +21,27 @@ class CLI:
     def _print_prefix(self):
         print(f"{self.LIGHT_GRAY}[{self.DARK_GRAY}{formatted_current_time()}{self.LIGHT_GRAY}]{self.RESET}", end=" ",)
 
-    def watching_files(self, files: "set[str]", _max = 10):
+    def watching_files(self, entries: "set[str]", _max = 10):
         self._print_prefix()
         print(
-            f"Watching files:\n{', '.join(sorted(files)[:_max])}",
-            f"{f'and {len(files) - _max} more...' if len(files) > _max else ''}"
+            f"Watching files:\n{', '.join(sorted(entries)[:_max])}",
+            f"{f'and {len(entries) - _max} more...' if len(entries) > _max else ''}"
         )
 
-    def added_file(self, file_path: str):
+    def added_entry(self, entry: str):
         self._print_prefix()
-        print(f"File {self.GREEN}{file_path}{self.RESET} was added")
+        entry_type = type(entry) == File and "File" or "Directory"
+        print(f"{entry_type} {self.GREEN}{entry.path}{self.RESET} was added")
 
-    def modified_file(self, file_path: str):
+    def modified_entry(self, entry: str):
         self._print_prefix()
-        print(f"File {self.YELLOW}{file_path}{self.RESET} was modified")
+        entry_type = type(entry) == File and "File" or "Directory"
+        print(f"{entry_type} {self.YELLOW}{entry.path}{self.RESET} was modified")
 
-    def removed_file(self, file_path: str):
+    def removed_entry(self, entry: str):
         self._print_prefix()
-        print(f"File {self.RED}{file_path}{self.RESET} was removed")
+        entry_type = type(entry) == File and "File" or "Directory"
+        print(f"{entry_type} {self.RED}{entry.path}{self.RESET} was removed")
 
     def running_commands(self, commands: "list[str]"):
         commands and print('\n'.join(commands))
