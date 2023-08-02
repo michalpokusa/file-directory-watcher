@@ -78,13 +78,7 @@ class CompareMethod(Enum):
         return (CompareMethod.MTIME.value,)
 
 
-def compute_state(
-    fs_entry: "File | Directory",
-    file_compare_method = CompareMethod.MTIME,
-    directory_compare_method = CompareMethod.MTIME
-):
-    compare_method = type(fs_entry) == File and file_compare_method or directory_compare_method
-
+def compute_state(fs_entry: "File | Directory", compare_method = CompareMethod.MTIME):
     try:
         if compare_method == CompareMethod.MTIME.value:
             return stat(fs_entry.path).st_mtime
@@ -115,11 +109,11 @@ def verbose_time_to_seconds(time: str) -> float:
 
     return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
 
-def expand_variables(command: str, entry: "File | Directory") -> str:
+def expand_command_variables(command: str, entry: "File | Directory") -> str:
     return command\
-    .replace(r"%file_name", os_path.basename(entry.path))\
-    .replace(r"%relative_file_path", entry.path)\
-    .replace(r"%absolute_file_path", os_path.abspath(entry.path))
+    .replace(r"%name", os_path.basename(entry.path))\
+    .replace(r"%relative_path", entry.path)\
+    .replace(r"%absolute_path", os_path.abspath(entry.path))
 
 def run_commands(*commands: "str", background=False):
     for command in commands:

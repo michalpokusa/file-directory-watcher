@@ -10,17 +10,24 @@ from argparse import (
 from src import VERSION
 from src.utils import verbose_time_to_seconds, CompareMethod, OperationType
 
+from textwrap import dedent
+
 
 class FDWArgumentParser(ArgumentParser):
     def error(self, message):
-        print(f"Error: {message}\n")
-        self.print_help()
+        print(f"Error: {message}")
         exit(1)
 
 
 parser = FDWArgumentParser(
     prog='fdw',
     description='...',
+    epilog=dedent(r'''
+    Variable expansions available for commands:
+        %name
+        %relative_path
+        %absolute_path
+    '''),
     formatter_class=RawTextHelpFormatter,
 )
 
