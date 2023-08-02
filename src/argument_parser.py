@@ -57,34 +57,66 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--oc", "--on-change",
+    "--ofc", "--on-file-change",
     metavar="command",
-    dest="commands_on_change",
-    help="commands to run when a file is added, modified or removed\n ",
+    dest="commands_on_file_change",
+    help=" Commands to run when a file is added, modified or removed\n ",
     nargs=ONE_OR_MORE,
     default=[],
 )
 parser.add_argument(
-    "--oa", "--on-add",
+    "--ofa", "--on-file-add",
     metavar="command",
-    dest="commands_on_add",
-    help="commands to run when a file is added\n ",
+    dest="commands_on_file_add",
+    help="Commands to run when a file is added\n ",
     nargs=ONE_OR_MORE,
     default=[],
 )
 parser.add_argument(
-    "--om", "--on-modify",
+    "--ofm", "--on-file-modify",
     metavar="command",
-    dest="commands_on_modify",
-    help="commands to run when a file is modified\n ",
+    dest="commands_on_file_modify",
+    help="Commands to run when a file is modified\n ",
     nargs=ONE_OR_MORE,
     default=[],
 )
 parser.add_argument(
-    "--or", "--on-remove",
+    "--ofr", "--on-file-remove",
     metavar="command",
-    dest="commands_on_remove",
-    help="commands to run when a file is removed\n ",
+    dest="commands_on_file_remove",
+    help="Commands to run when a file is removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+parser.add_argument(
+    "--odc", "--on-directory-change",
+    metavar="command",
+    dest="commands_on_directory_change",
+    help="Commands to run when a directory is added, modified or removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+parser.add_argument(
+    "--oda", "--on-directory-add",
+    metavar="command",
+    dest="commands_on_directory_add",
+    help="Commands to run when a directory is added\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+parser.add_argument(
+    "--odm", "--on-directory-modify",
+    metavar="command",
+    dest="commands_on_directory_modify",
+    help="Commands to run when a directory is modified\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+parser.add_argument(
+    "--odr", "--on-directory-remove",
+    metavar="command",
+    dest="commands_on_directory_remove",
+    help="Commands to run when a directory is removed\n ",
     nargs=ONE_OR_MORE,
     default=[],
 )
@@ -129,10 +161,14 @@ class FDWArgs(Namespace):
     delay: float
     background: bool
 
-    commands_on_change: "list[str]"
-    commands_on_add: "list[str]"
-    commands_on_modify: "list[str]"
-    commands_on_remove: "list[str]"
+    commands_on_file_change: "list[str]"
+    commands_on_file_add: "list[str]"
+    commands_on_file_modify: "list[str]"
+    commands_on_file_remove: "list[str]"
+    commands_on_directory_change: "list[str]"
+    commands_on_directory_add: "list[str]"
+    commands_on_directory_modify: "list[str]"
+    commands_on_directory_remove: "list[str]"
 
     color: bool
     file_compare_method: CompareMethod
@@ -140,3 +176,10 @@ class FDWArgs(Namespace):
 
 
 cli_args: FDWArgs = parser.parse_args()
+
+cli_args.commands_on_file_add.extend(cli_args.commands_on_file_change)
+cli_args.commands_on_file_modify.extend(cli_args.commands_on_file_change)
+cli_args.commands_on_file_remove.extend(cli_args.commands_on_file_change)
+cli_args.commands_on_directory_add.extend(cli_args.commands_on_directory_change)
+cli_args.commands_on_directory_modify.extend(cli_args.commands_on_directory_change)
+cli_args.commands_on_directory_remove.extend(cli_args.commands_on_directory_change)

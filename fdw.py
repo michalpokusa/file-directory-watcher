@@ -20,9 +20,7 @@ class FDW:
 
     def __init__(self, args: FDWArgs):
         self.args = args
-        self.args.commands_on_add += self.args.commands_on_change
-        self.args.commands_on_modify += self.args.commands_on_change
-        self.args.commands_on_remove += self.args.commands_on_change
+
 
         self.cli = CLI(self.args.color)
         self.states: "dict[File | Directory]" = {}
@@ -56,10 +54,8 @@ class FDW:
             )
         )
 
-        expanded_commands = [
-            expand_variables(command, entry)
-            for command in self.args.commands_on_add
-        ]
+        commands = type(entry) == File and self.args.commands_on_file_add or self.args.commands_on_directory_add
+        expanded_commands = [expand_variables(command, entry)for command in commands]
 
         self.cli.added_entry(entry)
         self.cli.running_commands(expanded_commands)
@@ -69,10 +65,8 @@ class FDW:
         self.states[entry] = self._cached_entry_state
         self._cached_entry_state = None
 
-        expanded_commands = [
-            expand_variables(command, entry)
-            for command in self.args.commands_on_modify
-        ]
+        commands = type(entry) == File and self.args.commands_on_file_modify or self.args.commands_on_directory_modify
+        expanded_commands = [expand_variables(command, entry)for command in commands]
 
         self.cli.modified_entry(entry)
         self.cli.running_commands(expanded_commands)
@@ -81,10 +75,8 @@ class FDW:
     def _handle_removed(self, entry: "File | Directory"):
         self.states.pop(entry)
 
-        expanded_commands = [
-            expand_variables(command, entry)
-            for command in self.args.commands_on_remove
-        ]
+        commands = type(entry) == File and self.args.commands_on_file_remove or self.args.commands_on_directory_remove
+        expanded_commands = [expand_variables(command, entry)for command in commands]
 
         self.cli.removed_entry(entry)
         self.cli.running_commands(expanded_commands)
