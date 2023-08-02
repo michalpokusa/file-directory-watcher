@@ -2,14 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug: fdw.py",
+            "name": "Python Module: fdw",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/fdw.py",
+            "cwd": "${workspaceFolder}/src",
+            "module": "fdw",
             "args": [
             ],
-            "console": "integratedTerminal",
             "justMyCode": true
-        }
+        },
     ]
 }

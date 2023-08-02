@@ -1,14 +1,13 @@
-from sys import exit
-
 from argparse import (
     ArgumentParser,
     Namespace,
     RawTextHelpFormatter,
     ONE_OR_MORE
 )
+from importlib.metadata import version
+from sys import exit
 
-from src import VERSION
-from src.utils import verbose_time_to_seconds, CompareMethod, OperationType
+from .utils import verbose_time_to_seconds, CompareMethod, OperationType
 
 from textwrap import dedent
 
@@ -140,9 +139,9 @@ parser.add_argument(
 watched_operations_group = parser.add_mutually_exclusive_group()
 
 watched_operations_group.add_argument(
-    "--only",
+    "--watch",
     metavar="operation",
-    dest="_only_operations",
+    dest="_watched_operations",
     help=f"Operations to watch for [{', '.join(OperationType.all())}]\n ",
     nargs=ONE_OR_MORE,
     choices=OperationType.all(),
@@ -178,7 +177,7 @@ parser.add_argument(
 parser.add_argument(
     "--version",
     action="version",
-    version=VERSION,
+    version=version("file-directory-watcher"),
 )
 
 
@@ -198,7 +197,7 @@ class FDWArgs(Namespace):
     commands_on_directory_modify: "list[str]"
     commands_on_directory_remove: "list[str]"
 
-    _only_operations: "list[str]"
+    _watched_operations: "list[str]"
     _ignored_operations: "list[str]"
     operations: "set[str]"
 
@@ -219,9 +218,9 @@ cli_args.commands_on_directory_remove.extend(cli_args.commands_on_directory_chan
 
 
 # Determining operations to watch for
-cli_args._only_operations = set(cli_args._only_operations)
-if OperationType.FILE_CHANGED.value in cli_args._only_operations:
-    cli_args._only_operations.update({
+cli_args._watched_operations = set(cli_args._watched_operations)
+if OperationType.FILE_CHANGED.value in cli_args._watched_operations:
+    cli_args._watched_operations.update({
         OperationType.FILE_ADDED.value,
         OperationType.FILE_REMOVED.value,
         OperationType.FILE_MODIFIED.value,
@@ -236,7 +235,7 @@ if OperationType.FILE_CHANGED.value in cli_args._ignored_operations:
     })
 
 cli_args.operations = set(OperationType.all()).intersection(
-    cli_args._only_operations
+    cli_args._watched_operations
 ).difference(
     cli_args._ignored_operations
 )

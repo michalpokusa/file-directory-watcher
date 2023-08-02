@@ -1,4 +1,4 @@
-from src.utils import formatted_current_time, File
+from .utils import formatted_current_time, File
 
 
 class CLI:

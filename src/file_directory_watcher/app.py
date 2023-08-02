@@ -1,9 +1,8 @@
-from sys import exit as sys_exit
 from time import sleep
 
-from src.argument_parser import FDWArgs, cli_args
-from src.cli import CLI
-from src.utils import (
+from .argument_parser import FDWArgs
+from .cli import CLI
+from .utils import (
     File,
     Directory,
     OperationType,
@@ -119,15 +118,3 @@ class FDW:
                     continue
 
             sleep(self.args.interval)
-
-
-def main():
-    app = FDW(cli_args)
-    app.compute_starting_states()
-    app.watch_for_changes()
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        sys_exit(0)
