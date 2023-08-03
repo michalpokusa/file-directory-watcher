@@ -3,7 +3,7 @@ name: Build and Publish to PyPI
 on:
   push:
     tags:
-      - "*"
+      - "v*"
 
 jobs:
   build-and-publish-to-pypi:
@@ -20,6 +20,11 @@ jobs:
 
       - name: Install dependencies
         run: python3 -m pip install --upgrade pip build twine
+
+      - name: Update version
+        run: tools/update-version.bash
+        env:
+          VERSION: ${{ github.ref_name }}
 
       - name: Build package
         run: python3 -m build

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "file-directory-watcher"
-version = "development"
+version = "0.0.0.dev0"
 description = "CLI tool for monitoring changes, additions, removals in files and directories and optionally running commands on specified operations."
 readme = "README.md"
 keywords = ["file", "directory", "watcher", "fdw", "changes", "monitoring", "monitor", "watch"]
