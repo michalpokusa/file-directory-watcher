@@ -2,10 +2,17 @@ from time import sleep
 
 from .argument_parser import FDWArgs
 from .cli import CLI
+from .const import (
+    FILE_ADDED,
+    FILE_MODIFIED,
+    FILE_REMOVED,
+    DIRECTORY_ADDED,
+    DIRECTORY_MODIFIED,
+    DIRECTORY_REMOVED,
+)
 from .utils import (
     File,
     Directory,
-    OperationType,
     fs_entries_from_patterns,
     changes_in_entries,
     compute_state,
@@ -34,9 +41,9 @@ class FDW:
 
     def _should_handle_added(self, entry: "File | Directory") -> bool:
         if type(entry) == File:
-            return OperationType.FILE_ADDED.value in self.args.operations
+            return FILE_ADDED in self.args.operations
         if type(entry) == Directory:
-            return OperationType.DIRECTORY_ADDED.value in self.args.operations
+            return DIRECTORY_ADDED in self.args.operations
 
     def _handle_added(self, entry: "File | Directory"):
         self.states.setdefault(entry, self._compute_state_for_entry(entry))
@@ -58,9 +65,9 @@ class FDW:
 
     def _should_handle_modified(self, entry: "File | Directory") -> bool:
         if type(entry) == File:
-            return OperationType.FILE_MODIFIED.value in self.args.operations
+            return FILE_MODIFIED in self.args.operations
         if type(entry) == Directory:
-            return OperationType.DIRECTORY_MODIFIED.value in self.args.operations
+            return DIRECTORY_MODIFIED in self.args.operations
 
     def _handle_modified(self, entry: "File | Directory"):
         self.states[entry] = self._cached_entry_state
@@ -78,9 +85,9 @@ class FDW:
 
     def _should_handle_removed(self, entry: "File | Directory") -> bool:
         if type(entry) == File:
-            return OperationType.FILE_REMOVED.value in self.args.operations
+            return FILE_REMOVED in self.args.operations
         if type(entry) == Directory:
-            return OperationType.DIRECTORY_REMOVED.value in self.args.operations
+            return DIRECTORY_REMOVED in self.args.operations
 
     def _handle_removed(self, entry: "File | Directory"):
         self.states.pop(entry)

@@ -6,10 +6,21 @@ from argparse import (
 )
 from importlib.metadata import version
 from sys import exit
-
-from .utils import verbose_time_to_seconds, CompareMethod, OperationType
-
 from textwrap import dedent
+
+from .const import (
+    FILE_CHANGED,
+    FILE_ADDED,
+    FILE_MODIFIED,
+    FILE_REMOVED,
+    DIRECTORY_CHANGED,
+    DIRECTORY_ADDED,
+    DIRECTORY_MODIFIED,
+    DIRECTORY_REMOVED,
+    ALL_OPERATIONS,
+)
+from .utils import verbose_time_to_seconds, CompareMethod
+
 
 
 class FDWArgumentParser(ArgumentParser):
@@ -142,18 +153,18 @@ watched_operations_group.add_argument(
     "--watch",
     metavar="operation",
     dest="_watched_operations",
-    help=f"Operations to watch for [{', '.join(OperationType.all())}]\n ",
+    help=f"Operations to watch for [{', '.join(ALL_OPERATIONS)}]\n ",
     nargs=ONE_OR_MORE,
-    choices=OperationType.all(),
+    choices=ALL_OPERATIONS,
     default=[],
 )
 watched_operations_group.add_argument(
     "--ignore",
     metavar="operation",
     dest="_ignored_operations",
-    help=f"Operations to ignore [{', '.join(OperationType.all())}]\n ",
+    help=f"Operations to ignore [{', '.join(ALL_OPERATIONS)}]\n ",
     nargs=ONE_OR_MORE,
-    choices=OperationType.all(),
+    choices=ALL_OPERATIONS,
     default=[],
 )
 
@@ -218,24 +229,22 @@ cli_args.commands_on_directory_remove.extend(cli_args.commands_on_directory_chan
 
 
 # Determining operations to watch for
+cli_args.operations = set(ALL_OPERATIONS)
 cli_args._watched_operations = set(cli_args._watched_operations)
-if OperationType.FILE_CHANGED.value in cli_args._watched_operations:
-    cli_args._watched_operations.update({
-        OperationType.FILE_ADDED.value,
-        OperationType.FILE_REMOVED.value,
-        OperationType.FILE_MODIFIED.value,
-    })
-
 cli_args._ignored_operations = set(cli_args._ignored_operations)
-if OperationType.FILE_CHANGED.value in cli_args._ignored_operations:
-    cli_args._ignored_operations.update({
-        OperationType.FILE_ADDED.value,
-        OperationType.FILE_REMOVED.value,
-        OperationType.FILE_MODIFIED.value,
-    })
 
-cli_args.operations = set(OperationType.all()).intersection(
-    cli_args._watched_operations
-).difference(
-    cli_args._ignored_operations
-)
+if FILE_CHANGED in cli_args._watched_operations:
+    cli_args._watched_operations.update({FILE_ADDED, FILE_REMOVED, FILE_MODIFIED,})
+
+if DIRECTORY_CHANGED in cli_args._watched_operations:
+    cli_args._watched_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
+
+if FILE_CHANGED in cli_args._ignored_operations:
+    cli_args._ignored_operations.update({FILE_ADDED, FILE_REMOVED, FILE_MODIFIED,})
+
+if DIRECTORY_CHANGED in cli_args._ignored_operations:
+    cli_args._ignored_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
+
+cli_args._watched_operations and cli_args.operations.intersection(cli_args._watched_operations)
+
+cli_args._ignored_operations and cli_args.operations.difference(cli_args._ignored_operations)
