@@ -102,9 +102,8 @@ def expand_command_variables(command: str, entry: "File | Directory") -> str:
     .replace(r"%relative_path", os_path.relpath(entry.path))\
     .replace(r"%absolute_path", os_path.abspath(entry.path))
 
-def run_commands(*commands: "str", background=False):
-    for command in commands:
-        if background:
-            Process(target=system, args=(command,)).start()
-        else:
-            system(command)
+def run_command(command: str, background:bool = False):
+    if background:
+        Process(target=system, args=(command,)).start()
+    else:
+        system(command)

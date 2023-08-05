@@ -17,7 +17,7 @@ from .utils import (
     changes_in_entries,
     compute_state,
     expand_command_variables,
-    run_commands,
+    run_command,
 )
 
 
@@ -55,8 +55,9 @@ class FDW:
         expanded_commands = [expand_command_variables(command, entry) for command in commands]
 
         self.cli.added_entry(entry)
-        self.cli.running_commands(expanded_commands)
-        run_commands(*expanded_commands, background=self.args.background)
+        for command in expanded_commands:
+            self.cli.running_command(command, self.args.background)
+            run_command(command, self.args.background)
 
     def _compare_file_states(self, entry: "File | Directory") -> bool:
         self._cached_entry_state = self._compute_state_for_entry(entry)
@@ -80,8 +81,9 @@ class FDW:
         expanded_commands = [expand_command_variables(command, entry) for command in commands]
 
         self.cli.modified_entry(entry)
-        self.cli.running_commands(expanded_commands)
-        run_commands(*expanded_commands, background=self.args.background)
+        for command in expanded_commands:
+            self.cli.running_command(command, self.args.background)
+            run_command(command, self.args.background)
 
     def _should_handle_removed(self, entry: "File | Directory") -> bool:
         if type(entry) == File:
@@ -99,8 +101,9 @@ class FDW:
         expanded_commands = [expand_command_variables(command, entry) for command in commands]
 
         self.cli.removed_entry(entry)
-        self.cli.running_commands(expanded_commands)
-        run_commands(*expanded_commands, background=self.args.background)
+        for command in expanded_commands:
+            self.cli.running_command(command, self.args.background)
+            run_command(command, self.args.background)
 
     def watch_for_changes(self):
         self.cli.watching_files([fse.path for fse in self.states])

@@ -43,5 +43,6 @@ class CLI:
         entry_type = type(entry) == File and "File" or "Directory"
         print(f"{entry_type} {self.RED}{entry.path}{self.RESET} was removed")
 
-    def running_commands(self, commands: "list[str]"):
-        commands and print('\n'.join(commands))
+    def running_command(self, command: str, background: bool = False):
+        self._print_prefix()
+        print(f'Running in {"background" if background else "foreground"}: {command}')
