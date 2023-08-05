@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
 from hashlib import md5
 from multiprocessing import Process
 from os import stat, system, path as os_path
 from pathlib import Path
 from re import match as re_match
+
+from .const import MTIME, SIZE, MD5
 
 
 def formatted_current_time(format: str = "%Y-%m-%d %H:%M:%S"):
@@ -51,27 +52,15 @@ def changes_in_entries(
         yield entry, False, False, True
 
 
-class CompareMethod(Enum):
-    MTIME = "mtime"
-    SIZE = "size"
-    MD5 = "md5"
-
-    def for_files() -> "list[str]":
-        return (CompareMethod.MTIME.value, CompareMethod.SIZE.value, CompareMethod.MD5.value)
-
-    def for_directories() -> "list[str]":
-        return (CompareMethod.MTIME.value,)
-
-
-def compute_state(fs_entry: "File | Directory", compare_method = CompareMethod.MTIME):
+def compute_state(fs_entry: "File | Directory", compare_method = MTIME):
     try:
-        if compare_method == CompareMethod.MTIME.value:
+        if compare_method == MTIME:
             return stat(fs_entry.path).st_mtime
 
-        if compare_method == CompareMethod.SIZE.value:
+        if compare_method == SIZE:
             return stat(fs_entry.path).st_size
 
-        if compare_method == CompareMethod.MD5.value:
+        if compare_method == MD5:
             with open(fs_entry.path, 'rb') as f:
                 file_content = f.read()
             return md5(file_content).hexdigest()

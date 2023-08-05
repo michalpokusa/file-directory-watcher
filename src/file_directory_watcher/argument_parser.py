@@ -18,8 +18,11 @@ from .const import (
     DIRECTORY_MODIFIED,
     DIRECTORY_REMOVED,
     ALL_OPERATIONS,
+    MTIME,
+    FILE_COMPARE_METHODS,
+    DIRECTORY_COMPARE_METHODS,
 )
-from .utils import verbose_time_to_seconds, CompareMethod
+from .utils import verbose_time_to_seconds
 
 
 
@@ -101,16 +104,16 @@ configuration_subgroup.add_argument(
     "--file-compare-method",
     dest="file_compare_method",
     help="method to compare files (default: mtime)\n ",
-    choices=CompareMethod.for_files(),
-    default=CompareMethod.MTIME.value,
+    choices=FILE_COMPARE_METHODS,
+    default=MTIME,
 )
 configuration_subgroup.add_argument(
     "--dcm",
     "--directory-compare-method",
     dest="directory_compare_method",
     help="method to compare directories (default: mtime)\n ",
-    choices=CompareMethod.for_directories(),
-    default=CompareMethod.MTIME.value,
+    choices=DIRECTORY_COMPARE_METHODS,
+    default=MTIME,
 )
 configuration_subgroup.add_argument(
     "--no-color",
@@ -208,8 +211,8 @@ class FDWArgs(Namespace):
     watched_operations: "list[str]"
     ignored_operations: "list[str]"
     no_color: bool
-    file_compare_method: CompareMethod
-    directory_compare_method: CompareMethod
+    file_compare_method: str
+    directory_compare_method: str
 
     commands_on_file_change: "list[str]"
     commands_on_file_add: "list[str]"

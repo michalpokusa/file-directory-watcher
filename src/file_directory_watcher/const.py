@@ -1,3 +1,5 @@
+
+# Operations
 FILE_CHANGED = "file_changed"
 FILE_ADDED = "file_added"
 FILE_MODIFIED = "file_modified"
@@ -17,3 +19,11 @@ ALL_OPERATIONS = (
     DIRECTORY_MODIFIED,
     DIRECTORY_REMOVED,
 )
+
+# Compare methods
+MTIME = "mtime"
+SIZE = "size"
+MD5 = "md5"
+
+FILE_COMPARE_METHODS = (MTIME, SIZE, MD5)
+DIRECTORY_COMPARE_METHODS = (MTIME,)
