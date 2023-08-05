@@ -28,11 +28,24 @@ class Directory(_FSEntry):
 
 def fs_entries_from_patterns(patterns: "list[str]") -> "File | Directory":
     for pattern in patterns:
-        for _path in Path("./").glob(pattern):
-            if os_path.isfile(_path):
-                yield File(str(_path))
-            elif os_path.isdir(_path):
-                yield Directory(str(_path))
+
+        # Direct path without glob
+        if "*" not in pattern:
+            if os_path.isfile(pattern):
+                yield File(os_path.abspath(pattern))
+            elif os_path.isdir(pattern):
+                yield Directory(os_path.abspath(pattern))
+            continue
+
+        # Path with glob
+        split_point = pattern.index("*")
+        base_path, glob_pattern = pattern[:split_point], pattern[split_point:]
+
+        for entry in Path(base_path).expanduser().resolve().glob(glob_pattern):
+            if os_path.isfile(entry):
+                yield File(os_path.abspath(entry))
+            elif os_path.isdir(entry):
+                yield Directory(os_path.abspath(entry))
 
 
 def changes_in_entries(
@@ -86,7 +99,7 @@ def verbose_time_to_seconds(time: str) -> float:
 def expand_command_variables(command: str, entry: "File | Directory") -> str:
     return command\
     .replace(r"%name", os_path.basename(entry.path))\
-    .replace(r"%relative_path", entry.path)\
+    .replace(r"%relative_path", os_path.relpath(entry.path))\
     .replace(r"%absolute_path", os_path.abspath(entry.path))
 
 def run_commands(*commands: "str", background=False):
