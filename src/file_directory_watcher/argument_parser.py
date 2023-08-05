@@ -26,13 +26,18 @@ from .utils import verbose_time_to_seconds, CompareMethod
 class FDWArgumentParser(ArgumentParser):
     def error(self, message):
         print(f"Error: {message}")
+        print("Try 'fdw --help' for more information.")
         exit(1)
 
 
 parser = FDWArgumentParser(
     prog='fdw',
-    description='...',
-    epilog=dedent(r'''
+    description='CLI tool for monitoring changes, additions, removals in files and directories and optionally running commands on specified operations.',
+    epilog=dedent(f'''
+    Custom formats:
+        TIME: e.g. 5s, 1m30s, 1h, 1h30m, 1d, 1d12h30m
+        OPERATION: {', '.join(ALL_OPERATIONS)}
+
     Variable expansions available for commands:
         %name
         %relative_path
@@ -41,155 +46,157 @@ parser = FDWArgumentParser(
     formatter_class=RawTextHelpFormatter,
 )
 
-# Positional arguments
-parser.add_argument(
+positional_subgroup = parser.add_argument_group("Positional arguments")
+positional_subgroup.add_argument(
     "patterns",
     metavar="pattern",
-    help="glob pattern to watch for changes",
+    help="glob pattern to watch for changes\n",
     nargs=ONE_OR_MORE,
 )
 
-# Optional arguments
-parser.add_argument(
+configuration_subgroup = parser.add_argument_group("Configuration options")
+configuration_subgroup.add_argument(
     "-i", "--interval",
-    metavar="seconds",
+    metavar="TIME",
     dest="interval",
-    help="interval between running the watcher in seconds (default: 1s)",
+    help="interval between running the watcher (default: 1s)\n ",
     default='1s',
     type=verbose_time_to_seconds,
 )
-parser.add_argument(
+configuration_subgroup.add_argument(
     "-d", "--delay",
-    metavar="seconds",
+    metavar="TIME",
     dest="delay",
-    help="delay between files in seconds (default: 0s)",
+    help="delay between files (default: 0s)\n ",
     default='0s',
     type=verbose_time_to_seconds,
 )
-parser.add_argument(
+configuration_subgroup.add_argument(
     "-b", "--background",
     dest="background",
-    help="run commands in background non-blocking processes",
+    help="run commands in background non-blocking processes (default: false)\n ",
     action="store_true",
 )
-
-parser.add_argument(
-    "--ofc", "--on-file-change",
-    metavar="command",
-    dest="commands_on_file_change",
-    help=" Commands to run when a file is added, modified or removed\n ",
-    nargs=ONE_OR_MORE,
-    default=[],
-)
-parser.add_argument(
-    "--ofa", "--on-file-add",
-    metavar="command",
-    dest="commands_on_file_add",
-    help="Commands to run when a file is added\n ",
-    nargs=ONE_OR_MORE,
-    default=[],
-)
-parser.add_argument(
-    "--ofm", "--on-file-modify",
-    metavar="command",
-    dest="commands_on_file_modify",
-    help="Commands to run when a file is modified\n ",
-    nargs=ONE_OR_MORE,
-    default=[],
-)
-parser.add_argument(
-    "--ofr", "--on-file-remove",
-    metavar="command",
-    dest="commands_on_file_remove",
-    help="Commands to run when a file is removed\n ",
-    nargs=ONE_OR_MORE,
-    default=[],
-)
-parser.add_argument(
-    "--odc", "--on-directory-change",
-    metavar="command",
-    dest="commands_on_directory_change",
-    help="Commands to run when a directory is added, modified or removed\n ",
-    nargs=ONE_OR_MORE,
-    default=[],
-)
-parser.add_argument(
-    "--oda", "--on-directory-add",
-    metavar="command",
-    dest="commands_on_directory_add",
-    help="Commands to run when a directory is added\n ",
-    nargs=ONE_OR_MORE,
-    default=[],
-)
-parser.add_argument(
-    "--odm", "--on-directory-modify",
-    metavar="command",
-    dest="commands_on_directory_modify",
-    help="Commands to run when a directory is modified\n ",
-    nargs=ONE_OR_MORE,
-    default=[],
-)
-parser.add_argument(
-    "--odr", "--on-directory-remove",
-    metavar="command",
-    dest="commands_on_directory_remove",
-    help="Commands to run when a directory is removed\n ",
-    nargs=ONE_OR_MORE,
-    default=[],
-)
-
-parser.add_argument(
-    "--no-color",
-    dest="color",
-    help="do not use colors in output",
-    action="store_const",
-    const=False,
-    default=True,
-)
-
-watched_operations_group = parser.add_mutually_exclusive_group()
-
+watched_operations_group = configuration_subgroup.add_mutually_exclusive_group()
 watched_operations_group.add_argument(
     "--watch",
-    metavar="operation",
-    dest="_watched_operations",
-    help=f"Operations to watch for [{', '.join(ALL_OPERATIONS)}]\n ",
+    metavar="OPERATION",
+    dest="watched_operations",
+    help=f"operations to watch for (default: all)\n ",
     nargs=ONE_OR_MORE,
     choices=ALL_OPERATIONS,
-    default=[],
+    default=ALL_OPERATIONS,
 )
 watched_operations_group.add_argument(
     "--ignore",
-    metavar="operation",
-    dest="_ignored_operations",
-    help=f"Operations to ignore [{', '.join(ALL_OPERATIONS)}]\n ",
+    metavar="OPERATION",
+    dest="ignored_operations",
+    help=f"operations to ignore (default: none)\n ",
     nargs=ONE_OR_MORE,
     choices=ALL_OPERATIONS,
     default=[],
 )
-
-parser.add_argument(
+configuration_subgroup.add_argument(
     "--fcm",
     "--file-compare-method",
     dest="file_compare_method",
-    help="method to compare files (default: mtime)",
+    help="method to compare files (default: mtime)\n ",
     choices=CompareMethod.for_files(),
     default=CompareMethod.MTIME.value,
 )
-parser.add_argument(
+configuration_subgroup.add_argument(
     "--dcm",
     "--directory-compare-method",
     dest="directory_compare_method",
-    help="method to compare directories (default: mtime)",
+    help="method to compare directories (default: mtime)\n ",
     choices=CompareMethod.for_directories(),
     default=CompareMethod.MTIME.value,
 )
+configuration_subgroup.add_argument(
+    "--no-color",
+    dest="no_color",
+    help="do not use colors in output (default: false)",
+    action="store_true",
+)
 
-parser.add_argument(
+
+commands_subgroup = parser.add_argument_group("Commands to run on specified operations")
+commands_subgroup.add_argument(
+    "--ofc", "--on-file-change",
+    metavar="command",
+    dest="commands_on_file_change",
+    help=" commands to run when a file is added, modified or removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--ofa", "--on-file-add",
+    metavar="command",
+    dest="commands_on_file_add",
+    help="commands to run when a file is added\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--ofm", "--on-file-modify",
+    metavar="command",
+    dest="commands_on_file_modify",
+    help="commands to run when a file is modified\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--ofr", "--on-file-remove",
+    metavar="command",
+    dest="commands_on_file_remove",
+    help="commands to run when a file is removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--odc", "--on-directory-change",
+    metavar="command",
+    dest="commands_on_directory_change",
+    help="commands to run when a directory is added, modified or removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--oda", "--on-directory-add",
+    metavar="command",
+    dest="commands_on_directory_add",
+    help="commands to run when a directory is added\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--odm", "--on-directory-modify",
+    metavar="command",
+    dest="commands_on_directory_modify",
+    help="commands to run when a directory is modified\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--odr", "--on-directory-remove",
+    metavar="command",
+    dest="commands_on_directory_remove",
+    help="commands to run when a directory is removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+
+other_subgroup = parser.add_argument_group("Other options")
+other_subgroup.add_argument(
     "--version",
     action="version",
     version=version("file-directory-watcher"),
 )
+
+
+# Reordering and customizing help
+parser._action_groups = parser._action_groups[2:]  # Removing two default groups
+parser._action_groups[-1]._group_actions.insert(0, parser._actions[0]) # Moving help argument to last group
 
 
 class FDWArgs(Namespace):
@@ -198,6 +205,11 @@ class FDWArgs(Namespace):
     interval: float
     delay: float
     background: bool
+    watched_operations: "list[str]"
+    ignored_operations: "list[str]"
+    no_color: bool
+    file_compare_method: CompareMethod
+    directory_compare_method: CompareMethod
 
     commands_on_file_change: "list[str]"
     commands_on_file_add: "list[str]"
@@ -208,16 +220,9 @@ class FDWArgs(Namespace):
     commands_on_directory_modify: "list[str]"
     commands_on_directory_remove: "list[str]"
 
-    _watched_operations: "list[str]"
-    _ignored_operations: "list[str]"
-    operations: "set[str]"
-
-    color: bool
-    file_compare_method: CompareMethod
-    directory_compare_method: CompareMethod
-
 
 cli_args: FDWArgs = parser.parse_args()
+
 
 # Adding commands_on_..._change to other commands
 cli_args.commands_on_file_add.extend(cli_args.commands_on_file_change)
@@ -229,22 +234,19 @@ cli_args.commands_on_directory_remove.extend(cli_args.commands_on_directory_chan
 
 
 # Determining operations to watch for
-cli_args.operations = set(ALL_OPERATIONS)
-cli_args._watched_operations = set(cli_args._watched_operations)
-cli_args._ignored_operations = set(cli_args._ignored_operations)
+cli_args.watched_operations = set(cli_args.watched_operations)
+cli_args.ignored_operations = set(cli_args.ignored_operations)
 
-if FILE_CHANGED in cli_args._watched_operations:
-    cli_args._watched_operations.update({FILE_ADDED, FILE_REMOVED, FILE_MODIFIED,})
+if FILE_CHANGED in cli_args.watched_operations:
+    cli_args.watched_operations.update({FILE_ADDED, FILE_REMOVED, FILE_MODIFIED,})
 
-if DIRECTORY_CHANGED in cli_args._watched_operations:
-    cli_args._watched_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
+if DIRECTORY_CHANGED in cli_args.watched_operations:
+    cli_args.watched_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
 
-if FILE_CHANGED in cli_args._ignored_operations:
-    cli_args._ignored_operations.update({FILE_ADDED, FILE_REMOVED, FILE_MODIFIED,})
+if FILE_CHANGED in cli_args.ignored_operations:
+    cli_args.ignored_operations.update({FILE_ADDED, FILE_REMOVED, FILE_MODIFIED,})
 
-if DIRECTORY_CHANGED in cli_args._ignored_operations:
-    cli_args._ignored_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
+if DIRECTORY_CHANGED in cli_args.ignored_operations:
+    cli_args.ignored_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
 
-cli_args._watched_operations and cli_args.operations.intersection(cli_args._watched_operations)
-
-cli_args._ignored_operations and cli_args.operations.difference(cli_args._ignored_operations)
+cli_args.watched_operations.difference_update(cli_args.ignored_operations)

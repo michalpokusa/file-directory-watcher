@@ -9,8 +9,8 @@ class CLI:
     RED = "\x1b[38;5;196m"
     RESET = "\x1b[0m"
 
-    def __init__(self, color: bool):
-        if not color:
+    def __init__(self, no_color: bool):
+        if no_color:
             self.DARK_GRAY = ""
             self.LIGHT_GRAY = ""
             self.GREEN = ""

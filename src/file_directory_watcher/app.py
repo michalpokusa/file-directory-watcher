@@ -28,7 +28,7 @@ class FDW:
     def __init__(self, args: FDWArgs):
         self.args = args
 
-        self.cli = CLI(self.args.color)
+        self.cli = CLI(self.args.no_color)
         self.states: "dict[File | Directory]" = {}
 
     def _compute_state_for_entry(self, entry: "File | Directory"):
@@ -41,9 +41,9 @@ class FDW:
 
     def _should_handle_added(self, entry: "File | Directory") -> bool:
         if type(entry) == File:
-            return FILE_ADDED in self.args.operations
+            return FILE_ADDED in self.args.watched_operations
         if type(entry) == Directory:
-            return DIRECTORY_ADDED in self.args.operations
+            return DIRECTORY_ADDED in self.args.watched_operations
 
     def _handle_added(self, entry: "File | Directory"):
         self.states.setdefault(entry, self._compute_state_for_entry(entry))
@@ -65,9 +65,9 @@ class FDW:
 
     def _should_handle_modified(self, entry: "File | Directory") -> bool:
         if type(entry) == File:
-            return FILE_MODIFIED in self.args.operations
+            return FILE_MODIFIED in self.args.watched_operations
         if type(entry) == Directory:
-            return DIRECTORY_MODIFIED in self.args.operations
+            return DIRECTORY_MODIFIED in self.args.watched_operations
 
     def _handle_modified(self, entry: "File | Directory"):
         self.states[entry] = self._cached_entry_state
@@ -85,9 +85,9 @@ class FDW:
 
     def _should_handle_removed(self, entry: "File | Directory") -> bool:
         if type(entry) == File:
-            return FILE_REMOVED in self.args.operations
+            return FILE_REMOVED in self.args.watched_operations
         if type(entry) == Directory:
-            return DIRECTORY_REMOVED in self.args.operations
+            return DIRECTORY_REMOVED in self.args.watched_operations
 
     def _handle_removed(self, entry: "File | Directory"):
         self.states.pop(entry)
