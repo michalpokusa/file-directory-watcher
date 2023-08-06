@@ -19,6 +19,9 @@ from .const import (
     DIRECTORY_REMOVED,
     ALL_OPERATIONS,
     MTIME,
+    MODE,
+    UID,
+    GID,
     FILE_COMPARE_METHODS,
     DIRECTORY_COMPARE_METHODS,
 )
@@ -109,18 +112,20 @@ watched_operations_group.add_argument(
 configuration_subgroup.add_argument(
     "--fcm",
     "--file-compare-method",
-    dest="file_compare_method",
-    help="method to compare files (default: mtime)\n ",
+    dest="file_compare_methods",
+    help="methods to compare files (default: mtime)\n ",
     choices=FILE_COMPARE_METHODS,
-    default=MTIME,
+    nargs=ONE_OR_MORE,
+    default=[MTIME, MODE, UID, GID],
 )
 configuration_subgroup.add_argument(
     "--dcm",
     "--directory-compare-method",
-    dest="directory_compare_method",
-    help="method to compare directories (default: mtime)\n ",
+    dest="directory_compare_methods",
+    help="methods to compare directories (default: mtime)\n ",
     choices=DIRECTORY_COMPARE_METHODS,
-    default=MTIME,
+    nargs=ONE_OR_MORE,
+    default=[MTIME, MODE, UID, GID],
 )
 configuration_subgroup.add_argument(
     "--no-color",

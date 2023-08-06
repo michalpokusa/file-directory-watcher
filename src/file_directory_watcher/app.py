@@ -32,8 +32,8 @@ class FDW:
         self.states: "dict[File | Directory]" = {}
 
     def _compute_state_for_entry(self, entry: "File | Directory"):
-        compare_method = type(entry) == File and self.args.file_compare_method or self.args.directory_compare_method
-        return compute_state(entry, compare_method)
+        compare_methods = type(entry) == File and self.args.file_compare_methods or self.args.directory_compare_methods
+        return compute_state(entry, compare_methods)
 
     def compute_starting_states(self):
         for entry in fs_entries_from_patterns(self.args.patterns, self.args.exclude_patterns):
