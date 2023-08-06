@@ -27,15 +27,20 @@ class Directory(_FSEntry):
     pass
 
 
-def fs_entries_from_patterns(patterns: "list[str]") -> "File | Directory":
+def fs_entries_from_patterns(
+    patterns: "list[str]",
+    exclude_patterns: "list[str]",
+) -> "File | Directory":
+    entries = set()
+
     for pattern in patterns:
 
         # Direct path without glob
         if "*" not in pattern:
             if os_path.isfile(pattern):
-                yield File(os_path.abspath(pattern))
+                entries.add(File(os_path.abspath(pattern)))
             elif os_path.isdir(pattern):
-                yield Directory(os_path.abspath(pattern))
+                entries.add(Directory(os_path.abspath(pattern)))
             continue
 
         # Path with glob
@@ -44,10 +49,14 @@ def fs_entries_from_patterns(patterns: "list[str]") -> "File | Directory":
 
         for entry in Path(base_path).expanduser().resolve().glob(glob_pattern):
             if os_path.isfile(entry):
-                yield File(os_path.abspath(entry))
+                entries.add(File(os_path.abspath(entry)))
             elif os_path.isdir(entry):
-                yield Directory(os_path.abspath(entry))
+                entries.add(Directory(os_path.abspath(entry)))
 
+    if not exclude_patterns:
+        return entries
+
+    return entries - fs_entries_from_patterns(exclude_patterns, [])
 
 def changes_in_entries(
         previous_entries: "set[File | Directory]", current_entries: "set[File | Directory]"
@@ -64,7 +73,6 @@ def changes_in_entries(
     # Removed entries
     for entry in previous_entries.difference(current_entries):
         yield entry, False, False, True
-
 
 def compute_state(fs_entry: "File | Directory", compare_method = MTIME):
     try:

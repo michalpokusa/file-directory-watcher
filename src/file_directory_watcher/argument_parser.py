@@ -49,11 +49,18 @@ parser = FDWArgumentParser(
     formatter_class=RawTextHelpFormatter,
 )
 
-positional_subgroup = parser.add_argument_group("Positional arguments")
-positional_subgroup.add_argument(
+patterns_subgroup = parser.add_argument_group("Patterns for files and directories")
+patterns_subgroup.add_argument(
     "patterns",
     metavar="pattern",
-    help="glob pattern to watch for changes\n",
+    help="glob pattern to watch for changes\n ",
+    nargs=ONE_OR_MORE,
+)
+patterns_subgroup.add_argument(
+    "--exclude",
+    metavar="pattern",
+    dest="exclude_patterns",
+    help="glob patterns to exclude from watching\n ",
     nargs=ONE_OR_MORE,
 )
 
@@ -204,6 +211,7 @@ parser._action_groups[-1]._group_actions.insert(0, parser._actions[0]) # Moving 
 
 class FDWArgs(Namespace):
     patterns: "list[str]"
+    exclude_patterns: "list[str]"
 
     interval: float
     delay: float

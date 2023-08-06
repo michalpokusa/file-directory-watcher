@@ -36,7 +36,7 @@ class FDW:
         return compute_state(entry, compare_method)
 
     def compute_starting_states(self):
-        for entry in fs_entries_from_patterns(self.args.patterns):
+        for entry in fs_entries_from_patterns(self.args.patterns, self.args.exclude_patterns):
             self.states.setdefault(entry, self._compute_state_for_entry(entry))
 
     def _should_handle_added(self, entry: "File | Directory") -> bool:
@@ -110,7 +110,7 @@ class FDW:
 
         while True:
             previous_entries = set(self.states.keys())
-            current_entries = set(fs_entries_from_patterns(self.args.patterns))
+            current_entries = set(fs_entries_from_patterns(self.args.patterns, self.args.exclude_patterns))
 
             for (entry, added, present_in_both, removed) in changes_in_entries(previous_entries, current_entries):
                 self.args.delay and sleep(self.args.delay)
