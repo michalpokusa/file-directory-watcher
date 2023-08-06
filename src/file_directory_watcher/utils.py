@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from hashlib import md5
 from multiprocessing import Process
-from os import stat, system, path as os_path
+from os import stat, path as os_path
 from pathlib import Path
 from re import match as re_match
+from subprocess import run, PIPE
 
 from .const import MTIME, SIZE, MD5
 
@@ -104,6 +105,13 @@ def expand_command_variables(command: str, entry: "File | Directory") -> str:
 
 def run_command(command: str, background:bool = False):
     if background:
-        Process(target=system, args=(command,)).start()
+        Process(
+            target=run,
+            args=(command,),
+            kwargs={
+                "stdin": PIPE,
+                "shell": True
+            }
+        ).start()
     else:
-        system(command)
+        run(command, stdin=PIPE, shell=True)
