@@ -38,20 +38,20 @@ def fs_entries_from_patterns(
         # Direct path without glob
         if "*" not in pattern:
             if os_path.isfile(pattern):
-                entries.add(File(os_path.abspath(pattern)))
+                entries.add(File(pattern))
             elif os_path.isdir(pattern):
-                entries.add(Directory(os_path.abspath(pattern)))
+                entries.add(Directory(pattern))
             continue
 
         # Path with glob
         split_point = pattern.index("*")
         base_path, glob_pattern = pattern[:split_point], pattern[split_point:]
 
-        for entry in Path(base_path).expanduser().resolve().glob(glob_pattern):
+        for entry in Path(base_path).expanduser().glob(glob_pattern):
             if os_path.isfile(entry):
-                entries.add(File(os_path.abspath(entry)))
+                entries.add(File(entry))
             elif os_path.isdir(entry):
-                entries.add(Directory(os_path.abspath(entry)))
+                entries.add(Directory(entry))
 
     if not exclude_patterns:
         return entries
