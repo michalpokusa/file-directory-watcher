@@ -49,9 +49,9 @@ def fs_entries_from_patterns(
 
         for entry in Path(base_path).expanduser().glob(glob_pattern):
             if os_path.isfile(entry):
-                entries.add(File(entry))
+                entries.add(File(str(entry)))
             elif os_path.isdir(entry):
-                entries.add(Directory(entry))
+                entries.add(Directory(str(entry)))
 
     if not exclude_patterns:
         return entries
