@@ -9,14 +9,6 @@ from sys import exit
 from textwrap import dedent
 
 from .const import (
-    FILE_CHANGED,
-    FILE_ADDED,
-    FILE_MODIFIED,
-    FILE_REMOVED,
-    DIRECTORY_CHANGED,
-    DIRECTORY_ADDED,
-    DIRECTORY_MODIFIED,
-    DIRECTORY_REMOVED,
     ALL_OPERATIONS,
     MTIME,
     MODE,
@@ -27,8 +19,7 @@ from .const import (
     VERBOSITY_LEVELS,
     NORMAL,
 )
-from .utils import verbose_time_to_seconds
-
+from .helpers import verbose_time_to_seconds, determine_operations
 
 
 class FDWArgumentParser(ArgumentParser):
@@ -92,20 +83,20 @@ configuration_subgroup.add_argument(
     help="run commands in background non-blocking processes (default: false)\n ",
     action="store_true",
 )
-watched_operations_group = configuration_subgroup.add_mutually_exclusive_group()
-watched_operations_group.add_argument(
-    "--watch",
+operations_group = configuration_subgroup.add_mutually_exclusive_group()
+operations_group.add_argument(
+    "--only",
     metavar="OPERATION",
-    dest="watched_operations",
+    dest="_only_operations",
     help=f"operations to watch for (default: all)\n ",
     nargs=ONE_OR_MORE,
     choices=ALL_OPERATIONS,
     default=ALL_OPERATIONS,
 )
-watched_operations_group.add_argument(
+operations_group.add_argument(
     "--ignore",
     metavar="OPERATION",
-    dest="ignored_operations",
+    dest="_ignored_operations",
     help=f"operations to ignore (default: none)\n ",
     nargs=ONE_OR_MORE,
     choices=ALL_OPERATIONS,
@@ -262,8 +253,9 @@ class FDWArgs(Namespace):
     interval: float
     delay: float
     background: bool
-    watched_operations: "list[str]"
-    ignored_operations: "list[str]"
+    _only_operations: "set[str]"
+    _ignored_operations: "set[str]"
+    watched_operations: "set[str]" # Computed
     file_compare_methods: str
     directory_compare_methods: str
     verbosity: int
@@ -296,22 +288,9 @@ cli_args.commands_on_directory_modify += cli_args.commands_on_directory_change +
 cli_args.commands_on_directory_remove += cli_args.commands_on_directory_change + cli_args.commands_on_change
 
 # Determining operations to watch for
-cli_args.watched_operations = set(cli_args.watched_operations)
-cli_args.ignored_operations = set(cli_args.ignored_operations)
-
-if FILE_CHANGED in cli_args.watched_operations:
-    cli_args.watched_operations.update({FILE_ADDED, FILE_REMOVED, FILE_MODIFIED,})
-
-if DIRECTORY_CHANGED in cli_args.watched_operations:
-    cli_args.watched_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
-
-if FILE_CHANGED in cli_args.ignored_operations:
-    cli_args.ignored_operations.update({FILE_ADDED, FILE_REMOVED, FILE_MODIFIED,})
-
-if DIRECTORY_CHANGED in cli_args.ignored_operations:
-    cli_args.ignored_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
-
-cli_args.watched_operations.difference_update(cli_args.ignored_operations)
+cli_args._only_operations = set(cli_args._only_operations)
+cli_args._ignored_operations = set(cli_args._ignored_operations)
+cli_args.watched_operations = determine_operations(cli_args._only_operations, cli_args._ignored_operations)
 
 # Translate verbosity level to integer
 cli_args.verbosity = VERBOSITY_LEVELS.index(cli_args.verbosity)

@@ -4,7 +4,6 @@ from hashlib import md5
 from multiprocessing import Process
 from os import stat, path as os_path
 from pathlib import Path
-from re import match as re_match
 from subprocess import run, PIPE
 
 from .const import MTIME, MODE, SIZE, MD5, UID, GID
@@ -100,22 +99,6 @@ def compute_state(fs_entry: "File | Directory", compare_methods = MTIME):
         except FileNotFoundError:
             return None
     return state
-
-def verbose_time_to_seconds(time: str) -> float:
-    pattern = r"""((?P<days>\d+)d)?((?P<hours>\d+)h)?((?P<minutes>\d+)m)?((?P<seconds>\d+(\.\d{1,2})?)s)?"""
-
-    match = re_match(pattern, time)
-    groups = match.groupdict()
-
-    if time and tuple(groups.values()) == (None, None, None, None):
-        raise ValueError(f"Invalid time format: {time}")
-
-    days = int(groups["days"] or 0)
-    hours = int(groups["hours"] or 0)
-    minutes = int(groups["minutes"] or 0)
-    seconds = float(groups["seconds"] or 0)
-
-    return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
 
 def expand_command_variables(command: str, entry: "File | Directory") -> str:
     return command\
