@@ -9,7 +9,7 @@ DIRECTORY_ADDED = "directory_added"
 DIRECTORY_MODIFIED = "directory_modified"
 DIRECTORY_REMOVED = "directory_removed"
 
-ALL_OPERATIONS = (
+ALL_OPERATIONS: "tuple[str]" = (
     FILE_CHANGED,
     FILE_ADDED,
     FILE_MODIFIED,
@@ -28,8 +28,12 @@ MD5 = "md5"
 UID = "uid"
 GID = "gid"
 
-FILE_COMPARE_METHODS = (MTIME, SIZE, MD5, MODE, UID, GID)
-DIRECTORY_COMPARE_METHODS = (MTIME, MODE, UID, GID)
+FILE_COMPARE_METHODS: "tuple[str]" = (MTIME, SIZE, MD5, MODE, UID, GID)
+DIRECTORY_COMPARE_METHODS: "tuple[str]" = (MTIME, MODE, UID, GID)
 
-FILE_COMPARE_METHODS = (MTIME, SIZE, MD5)
-DIRECTORY_COMPARE_METHODS = (MTIME,)
+# Verbosity
+LIMITED = 0
+NORMAL = 1
+FULL = 2
+
+VERBOSITY_LEVELS: "tuple[int]" = ("limited", "normal", "full")

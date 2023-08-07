@@ -24,6 +24,8 @@ from .const import (
     GID,
     FILE_COMPARE_METHODS,
     DIRECTORY_COMPARE_METHODS,
+    VERBOSITY_LEVELS,
+    NORMAL,
 )
 from .utils import verbose_time_to_seconds
 
@@ -128,7 +130,14 @@ configuration_subgroup.add_argument(
     default=[MTIME, MODE, UID, GID],
 )
 configuration_subgroup.add_argument(
-    "--no-color",
+    "-v", "--verbosity",
+    dest="verbosity",
+    help="make output more or less verbose (default: normal)\n ",
+    choices=VERBOSITY_LEVELS,
+    default=VERBOSITY_LEVELS[NORMAL],
+)
+configuration_subgroup.add_argument(
+    "--nc", "--no-color",
     dest="no_color",
     help="do not use colors in output (default: false)",
     action="store_true",
@@ -255,9 +264,10 @@ class FDWArgs(Namespace):
     background: bool
     watched_operations: "list[str]"
     ignored_operations: "list[str]"
+    file_compare_methods: str
+    directory_compare_methods: str
+    verbosity: int
     no_color: bool
-    file_compare_method: str
-    directory_compare_method: str
 
     commands_on_change: "list[str]"
     commands_on_add: "list[str]"
@@ -302,3 +312,6 @@ if DIRECTORY_CHANGED in cli_args.ignored_operations:
     cli_args.ignored_operations.update({DIRECTORY_ADDED, DIRECTORY_REMOVED, DIRECTORY_MODIFIED})
 
 cli_args.watched_operations.difference_update(cli_args.ignored_operations)
+
+# Translate verbosity level to integer
+cli_args.verbosity = VERBOSITY_LEVELS.index(cli_args.verbosity)

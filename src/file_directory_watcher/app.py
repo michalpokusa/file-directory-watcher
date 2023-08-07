@@ -28,7 +28,7 @@ class FDW:
     def __init__(self, args: FDWArgs):
         self.args = args
 
-        self.cli = CLI(self.args.no_color)
+        self.cli = CLI(self.args.verbosity, self.args.no_color)
         self.states: "dict[File | Directory]" = {}
 
     def _compute_state_for_entry(self, entry: "File | Directory"):
@@ -106,7 +106,7 @@ class FDW:
             run_command(command, self.args.background)
 
     def watch_for_changes(self):
-        self.cli.watching_files([fse.path for fse in self.states])
+        self.cli.watching_entries(self.states)
 
         while True:
             previous_entries = set(self.states.keys())
