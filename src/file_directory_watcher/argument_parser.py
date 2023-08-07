@@ -137,6 +137,38 @@ configuration_subgroup.add_argument(
 
 commands_subgroup = parser.add_argument_group("Commands to run on specified operations")
 commands_subgroup.add_argument(
+    "--oc", "--on-change",
+    metavar="command",
+    dest="commands_on_change",
+    help=" commands to run when a file or directory is added, modified or removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--oa", "--on-add",
+    metavar="command",
+    dest="commands_on_add",
+    help="commands to run when a file or directory is added\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--om", "--on-modify",
+    metavar="command",
+    dest="commands_on_modify",
+    help="commands to run when a file or directory is modified\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
+    "--or", "--on-remove",
+    metavar="command",
+    dest="commands_on_remove",
+    help="commands to run when a file or directory is removed\n ",
+    nargs=ONE_OR_MORE,
+    default=[],
+)
+commands_subgroup.add_argument(
     "--ofc", "--on-file-change",
     metavar="command",
     dest="commands_on_file_change",
@@ -227,6 +259,10 @@ class FDWArgs(Namespace):
     file_compare_method: str
     directory_compare_method: str
 
+    commands_on_change: "list[str]"
+    commands_on_add: "list[str]"
+    commands_on_modify: "list[str]"
+    commands_on_remove: "list[str]"
     commands_on_file_change: "list[str]"
     commands_on_file_add: "list[str]"
     commands_on_file_modify: "list[str]"
@@ -239,15 +275,15 @@ class FDWArgs(Namespace):
 
 cli_args: FDWArgs = parser.parse_args()
 
+## Post-parse modifications
 
-# Adding commands_on_..._change to other commands
-cli_args.commands_on_file_add.extend(cli_args.commands_on_file_change)
-cli_args.commands_on_file_modify.extend(cli_args.commands_on_file_change)
-cli_args.commands_on_file_remove.extend(cli_args.commands_on_file_change)
-cli_args.commands_on_directory_add.extend(cli_args.commands_on_directory_change)
-cli_args.commands_on_directory_modify.extend(cli_args.commands_on_directory_change)
-cli_args.commands_on_directory_remove.extend(cli_args.commands_on_directory_change)
-
+# Adding on change commands to other commands
+cli_args.commands_on_file_add += cli_args.commands_on_file_change + cli_args.commands_on_change
+cli_args.commands_on_file_modify += cli_args.commands_on_file_change + cli_args.commands_on_change
+cli_args.commands_on_file_remove += cli_args.commands_on_file_change + cli_args.commands_on_change
+cli_args.commands_on_directory_add += cli_args.commands_on_directory_change + cli_args.commands_on_change
+cli_args.commands_on_directory_modify += cli_args.commands_on_directory_change + cli_args.commands_on_change
+cli_args.commands_on_directory_remove += cli_args.commands_on_directory_change + cli_args.commands_on_change
 
 # Determining operations to watch for
 cli_args.watched_operations = set(cli_args.watched_operations)
