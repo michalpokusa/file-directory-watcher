@@ -95,16 +95,28 @@ Tips:
         <th>Description</th>
     </tr>
     <tr>
-        <td><code>-i</code>, <code>--interval</code></td>
+        <td>
+            <code>-i</code>,
+            </br>
+            <code>--interval</code>
+        </td>
         <td rowspan=2>e.g. <code>0.5s</code>, <code>1m</code>, <code>2h30m</code>, <code>1d12h</code></td>
         <td>Interval between running the watcher. Default: <code>1s</code>.</td>
     </tr>
     <tr>
-        <td><code>-d</code>, <code>--delay</code></td>
+        <td>
+            <code>-d</code>,
+            </br>
+            <code>--delay</code>
+        </td>
         <td>Delay between files. Default: <code>0s</code>.</td>
     </tr>
     <tr>
-        <td><code>-b</code>, <code>--background</code></td>
+        <td>
+            <code>-b</code>,
+            </br>
+            <code>--background</code>
+        </td>
         <td>-</td>
         <td>
             Run commands in the background as non-blocking processes.
@@ -141,7 +153,11 @@ Tips:
         <td>Operations to ignore. Default: <code>none</code>.</td>
     </tr>
     <tr>
-        <td><code>--fcm</code>, <code>--file-compare-method</code></td>
+        <td>
+            <code>--fcm</code>,
+            </br>
+            <code>--file-compare-method</code>
+        </td>
         <td>
             <code>mtime</code>,
             <code>size</code>,
@@ -153,7 +169,11 @@ Tips:
         <td>Methods to compare files. Default: <code>mtime</code></td>
     </tr>
     <tr>
-        <td><code>--dcm</code>, <code>--directory-compare-method</code></td>
+        <td>
+            <code>--dcm</code>,
+            </br>
+            <code>--directory-compare-method</code>
+        </td>
         <td>
             <code>mtime</code>,
             <code>mode</code>,
@@ -163,7 +183,11 @@ Tips:
         <td>Methods to compare directories. Default: <code>mtime</code></td>
     </tr>
     <tr>
-        <td><code>-v</code>, <code>--verbosity</code></td>
+        <td>
+            <code>-v</code>,
+            </br>
+            <code>--verbosity</code>
+        </td>
         <td>
             <code>limited</code>,
             <code>normal</code>,
@@ -172,7 +196,11 @@ Tips:
         <td>Set output verbosity. Default: <code>normal</code>.</td>
     </tr>
     <tr>
-        <td><code>--nc</code>, <code>--no-color</code></td>
+        <td>
+            <code>--nc</code>,
+            </br>
+            <code>--no-color</code>
+        </td>
         <td>-</td>
         <td>Disable colored output.</td>
     </tr>
@@ -187,52 +215,100 @@ Tips:
         <th>Description</th>
     </tr>
     <tr>
-        <td><code>--oc</code>, <code>--on-change</code></td>
+        <td>
+            <code>--oc</code>,
+            </br>
+            <code>--on-change</code>
+        </td>
         <td rowspan=12><code>command</code></td>
         <td>Commands to run when a file or directory is added, modified, or removed.</td>
     </tr>
     <tr>
-        <td><code>--oa</code>, <code>--on-add</code></td>
+        <td>
+            <code>--oa</code>,
+            </br>
+            <code>--on-add</code>
+        </td>
         <td>Commands to run when a file or directory is added.</td>
     </tr>
     <tr>
-        <td><code>--om</code>, <code>--on-modify</code></td>
+        <td>
+            <code>--om</code>,
+            </br>
+            <code>--on-modify</code>
+        </td>
         <td>Commands to run when a file or directory is modified.</td>
     </tr>
     <tr>
-        <td><code>--or</code>, <code>--on-remove</code></td>
+        <td>
+            <code>--or</code>,
+            </br>
+            <code>--on-remove</code>
+        </td>
         <td>Commands to run when a file or directory is removed.</td>
     </tr>
     <tr>
-        <td><code>--ofc</code>, <code>--on-file-change</code></td>
+        <td>
+            <code>--ofc</code>,
+            </br>
+            <code>--on-file-change</code>
+        </td>
         <td>Commands to run when a file is added, modified, or removed.</td>
     </tr>
     <tr>
-        <td><code>--ofa</code>, <code>--on-file-add</code></td>
+        <td>
+            <code>--ofa</code>,
+            </br>
+            <code>--on-file-add</code>
+        </td>
         <td>Commands to run when a file is added.</td>
     </tr>
     <tr>
-        <td><code>--ofm</code>, <code>--on-file-modify</code></td>
+        <td>
+            <code>--ofm</code>,
+            </br>
+            <code>--on-file-modify</code>
+        </td>
         <td>Commands to run when a file is modified.</td>
     </tr>
     <tr>
-        <td><code>--ofr</code>, <code>--on-file-remove</code></td>
+        <td>
+            <code>--ofr</code>,
+            </br>
+            <code>--on-file-remove</code>
+        </td>
         <td>Commands to run when a file is removed.</td>
     </tr>
     <tr>
-        <td><code>--odc</code>, <code>--on-directory-change</code></td>
+        <td>
+            <code>--odc</code>,
+            </br>
+            <code>--on-directory-change</code>
+        </td>
         <td>Commands to run when a directory is added, modified, or removed.</td>
     </tr>
     <tr>
-        <td><code>--oda</code>, <code>--on-directory-add</code></td>
+        <td>
+            <code>--oda</code>,
+            </br>
+            <code>--on-directory-add</code>
+        </td>
         <td>Commands to run when a directory is added.</td>
     </tr>
     <tr>
-        <td><code>--odm</code>, <code>--on-directory-modify</code></td>
+        <td>
+            <code>--odm</code>,
+            </br>
+            <code>--on-directory-modify</code>
+        </td>
         <td>Commands to run when a directory is modified.</td>
     </tr>
     <tr>
-        <td><code>--odr</code>, <code>--on-directory-remove</code></td>
+        <td>
+            <code>--odr</code>,
+            </br>
+            <code>--on-directory-remove</code>
+        </td>
         <td>Commands to run when a directory is removed.</td>
     </tr>
 </table>
