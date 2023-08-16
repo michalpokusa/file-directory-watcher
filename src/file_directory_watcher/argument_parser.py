@@ -11,6 +11,8 @@ from textwrap import dedent
 from .const import (
     ALL_OPERATIONS,
     MTIME,
+    ATIME,
+    CTIME,
     MODE,
     UID,
     GID,
@@ -106,19 +108,19 @@ configuration_subgroup.add_argument(
     "--fcm",
     "--file-compare-method",
     dest="file_compare_methods",
-    help="methods to compare files (default: mtime)\n ",
+    help="methods to compare files (default: mtime atime ctime mode uid gid)\n ",
     choices=FILE_COMPARE_METHODS,
     nargs=ONE_OR_MORE,
-    default=[MTIME, MODE, UID, GID],
+    default=[MTIME, ATIME, CTIME, MODE, UID, GID],
 )
 configuration_subgroup.add_argument(
     "--dcm",
     "--directory-compare-method",
     dest="directory_compare_methods",
-    help="methods to compare directories (default: mtime)\n ",
+    help="methods to compare directories (default: mtime atime ctime mode uid gid)\n ",
     choices=DIRECTORY_COMPARE_METHODS,
     nargs=ONE_OR_MORE,
-    default=[MTIME, MODE, UID, GID],
+    default=[MTIME, ATIME, CTIME, MODE, UID, GID],
 )
 configuration_subgroup.add_argument(
     "-v", "--verbosity",

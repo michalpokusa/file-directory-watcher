@@ -6,7 +6,7 @@ from os import stat, path as os_path
 from pathlib import Path
 from subprocess import run, PIPE
 
-from .const import MTIME, MODE, SIZE, MD5, UID, GID
+from .const import MTIME, ATIME, CTIME, MODE, SIZE, MD5, UID, GID
 
 
 def formatted_current_time(format: str = "%Y-%m-%d %H:%M:%S"):
@@ -75,22 +75,30 @@ def changes_in_entries(
 
 def compute_state(fs_entry: "File | Directory", compare_methods = MTIME):
     state = ""
+    fs_entry_stat = stat(fs_entry.path)
+
     for compare_method in compare_methods:
         try:
             if compare_method == MTIME:
-                state += f"mtime={stat(fs_entry.path).st_mtime};"
+                state += f"mtime={fs_entry_stat.st_mtime};"
+
+            if compare_method == ATIME:
+                state += f"atime={fs_entry_stat.st_atime};"
+
+            if compare_method == CTIME:
+                state += f"ctime={fs_entry_stat.st_ctime};"
 
             if compare_method == MODE:
-                state += f"mode={stat(fs_entry.path).st_mode};"
+                state += f"mode={fs_entry_stat.st_mode};"
 
             if compare_method == SIZE:
-                state += f"size={stat(fs_entry.path).st_size};"
+                state += f"size={fs_entry_stat.st_size};"
 
             if compare_method == UID:
-                state += f"uid={stat(fs_entry.path).st_uid};"
+                state += f"uid={fs_entry_stat.st_uid};"
 
             if compare_method == GID:
-                state += f"gid={stat(fs_entry.path).st_gid};"
+                state += f"gid={fs_entry_stat.st_gid};"
 
             if compare_method == MD5:
                 with open(fs_entry.path, 'rb') as f:

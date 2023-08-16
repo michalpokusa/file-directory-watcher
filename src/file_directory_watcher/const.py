@@ -22,14 +22,16 @@ ALL_OPERATIONS: "tuple[str]" = (
 
 # Compare methods
 MTIME = "mtime"
+ATIME = "atime"
+CTIME = "ctime"
 MODE = "mode"
 SIZE = "size"
 MD5 = "md5"
 UID = "uid"
 GID = "gid"
 
-FILE_COMPARE_METHODS: "tuple[str]" = (MTIME, SIZE, MD5, MODE, UID, GID)
-DIRECTORY_COMPARE_METHODS: "tuple[str]" = (MTIME, MODE, UID, GID)
+FILE_COMPARE_METHODS: "tuple[str]" = (MTIME, ATIME, CTIME, SIZE, MD5, MODE, UID, GID)
+DIRECTORY_COMPARE_METHODS: "tuple[str]" = (MTIME, ATIME, CTIME, MODE, UID, GID)
 
 # Verbosity
 LIMITED = 0
