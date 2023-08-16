@@ -160,6 +160,8 @@ Tips:
         </td>
         <td>
             <code>mtime</code>,
+            <code>atime</code>,
+            <code>ctime</code>,
             <code>size</code>,
             <code>md5</code>,
             <code>mode</code>,
@@ -176,6 +178,8 @@ Tips:
         </td>
         <td>
             <code>mtime</code>,
+            <code>atime</code>,
+            <code>ctime</code>,
             <code>mode</code>,
             <code>uid</code>,
             <code>gid</code>
